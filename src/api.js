@@ -34,6 +34,8 @@ Functions, rely on endpoint:
 
 var Q = function(){};
 var globals = function(){};
+//var Q = require('lib/promise');
+//var globals = require('globals');
 
 var salt = "Eech7co8Ohloopo9Ol6baimi";
 
@@ -44,7 +46,9 @@ var getLocation = function() {
 
 // DOM dependent
 var getEndpoint = function() {
-  var script, url, js = document.getElementsByTagName("script");
+  var js = document.getElementsByTagName("script");
+  var script;
+  var url;
 
   // prefer `data-isso="//host/api/endpoint"` if provided
   for (var i = 0; i < js.length; i++) {
