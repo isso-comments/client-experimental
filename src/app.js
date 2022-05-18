@@ -123,16 +123,7 @@ App.prototype.fetchComments = function() {
   self.api.fetch(tid, self.config["max-comments-top"],
       self.config["max-comments-nested"]) .then(
     function (rv) {
-      for (var setting in rv.config) {
-        // TODO: Also check against default values here, see related PR
-        if (setting in self.config && self.config[setting] != rv.config[setting]) {
-            console.log("Isso: Client value '%s' for setting '%s' overridden by server value '%s'.\n" +
-                        "Since Isso version 0.12.6, 'data-isso-%s' is only configured via the server " +
-                        "to keep client and server in sync",
-                        self.config[setting], setting, rv.config[setting], setting);
-        }
-        self.config[setting] = rv.config[setting]
-      }
+      self.mergeConfigs(rv);
 
       self.issoRoot.prepend(self.createPostbox(null));
 
@@ -156,15 +147,37 @@ App.prototype.fetchComments = function() {
         self.createCommentObj().insertLoader(rv, lastcreated);
       }
 
-      if (window.location.hash.length > 0 &&
-        window.location.hash.match("^#isso-[0-9]+$")) {
-        $(window.location.hash).scrollIntoView();
-      }
+      self.scrollToHash();
+
     },
     function(err) {
       console.log(err);
     }
   );
+};
+
+App.prototype.scrollToHash = function() {
+  if (window.location.hash.length > 0 &&
+      window.location.hash.match("^#isso-[0-9]+$")) {
+    try {
+      $(window.location.hash).scrollIntoView();
+    } catch (ex) {
+      // No elements with #hash, meh
+    };
+  }
+};
+
+App.prototype.mergeConfigs = function(rv) {
+  for (var setting in rv.config) {
+    // TODO: Also check against default values here, see related PR
+    if (setting in self.config && self.config[setting] != rv.config[setting]) {
+        console.log("Isso: Client value '%s' for setting '%s' overridden by server value '%s'.\n" +
+                    "Since Isso version 0.12.6, 'data-isso-%s' is only configured via the server " +
+                    "to keep client and server in sync",
+                    self.config[setting], setting, rv.config[setting], setting);
+    }
+    self.config[setting] = rv.config[setting]
+  }
 };
 
 App.prototype.createPostbox = function(parent) {
