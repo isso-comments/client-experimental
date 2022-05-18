@@ -69,7 +69,13 @@ Config.prototype._readFromScriptTag() {
     }
   }
 
-  // split avatar-fg on whitespace
+  // Convert vote-levels from string to array
+  if (typeof self.config["vote-levels" === "string") {
+    // Eg. -5,5,15
+    self.config["vote-levels"] = self.config["vote-levels"].split(',');
+  }
+
+  // Split avatar-fg on whitespace
   self.config["avatar-fg"] = self.config["avatar-fg"].split(" ");
 
   // Convert page-author-hash into a array by splitting at whitespace and/or commas

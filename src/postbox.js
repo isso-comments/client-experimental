@@ -1,9 +1,25 @@
+/*
+Uses:
+- DOM/jquery $ impl
+  -> functional
+- utils
+  -> functional
+
+One-time setup:
+
+Functions:
+
+Functions (DOM-dependent):
+
+Functions (dependent on config):
+*/
+
 var utils = require('utils');
 var $ = function(){};
 
 var editorify = require('widget').editorify;
 
-var ValidationErrors = {
+var ValidationError = {
   TEXT_TOO_SHORT: 1,
   EMAIL_MISSING: 2,
   AUTHOR_MISSING: 3,
@@ -62,19 +78,19 @@ Postbox.prototype.validate = function() {
     $(".isso-textarea", self.element.classList.contains("isso-placeholder"))
   {
     $(".isso-textarea", self.element.focus();
-    reasons.push(ValidationErrors.TEXT_TOO_SHORT);
+    reasons.push(ValidationError.TEXT_TOO_SHORT);
   }
   if (self.config["require-email"]
       && $("[name='email']", self.element.value.length <= 0)
   {
     $("[name='email']", self.element.focus();
-    reasons.push(ValidationErrors.EMAIL_MISSING);
+    reasons.push(ValidationError.EMAIL_MISSING);
   }
   if (self.config["require-author"]
       && $("[name='author']", self.element.value.length <= 0)
   {
     $("[name='author']", self.element.focus();
-    reasons.push(ValidationErrors.AUTHOR_MISSING);
+    reasons.push(ValidationError.AUTHOR_MISSING);
   }
   return reasons;
 };
@@ -127,7 +143,7 @@ Postbox.prototype.submit = function() {
 
   self.edit();
   if (self.element.validate().length) {
-    // TODO: handle and display ValidationErrors
+    // TODO: handle and display ValidationError
     return;
   }
 
@@ -158,4 +174,9 @@ Postbox.prototype.submit = function() {
       self.element.onsuccess();
     }
   });
+};
+
+module.exports = {
+  Postbox: Postbox,
+  ValidationError: ValidationError,
 };

@@ -2,20 +2,6 @@
 Uses:
 - DOM/jquery $ impl
   -> functional
-- utils
-  -> functional
-- identicons
-  -> functional
-- globals
-  -> stateful
-- template
-  -> dependent on i18n+conf
-- config
-  -> data-isso-* attrs, enriched with conf fetched from server (catch-22)
-- api
-  -> dependent on data-isso-* attrs, stateful
-- i18n
-  -> dependent on language selection+conf
 
 One-time setup:
 
@@ -26,22 +12,11 @@ Functions (DOM-dependent):
 Functions (dependent on config):
 */
 
-var utils = require('utils');
 //var $ = require('dom');
 var $ = function(){};
-var identicons = function(){};
-var globals = function(){};
 
-
-var Widget = function() {
-  this.api = null;
-  this.config = null;
-  this.i18n = null;
-  this.localStorage = null;
-  this.template = null;
-};
-
-// TODO: Widget constructor func?
+var commentHelper = require('comment');
+var postbox = require('postbox');
 
 // DOM dependent
 var editorify = function(el) {
@@ -66,6 +41,43 @@ var editorify = function(el) {
 
   return el;
 }
+
+
+var Widget = function() {
+  this.api = null;
+  this.config = null;
+  this.i18n = null;
+  this.localStorage = null;
+  this.template = null;
+};
+
+Widget.prototype.constructor = function(api, config, i18n, localStorage, template) {
+  this.api = api;
+  this.config = config;
+  this.i18n = i18n;
+  this.localStorage = localStorage;
+  this.template = template;
+};
+
+Widget.prototype.createPostbox = function(parent) {
+  var self = this; // Preserve Object context
+  var _postbox = new postbox.Postbox(parent, self.api, self.config,
+      self.localStorage, self.template, self);
+  return _postbox;
+};
+
+Widget.prototype.createComment = function() {
+  var self = this; // Preserve Object context
+  var _comment = new commentHelper.Comment(self.api, self.config, self.i18n,
+      self.template, self);
+  return _comment;
+};
+
+Widget.prototype.insertComment = function(comment, scrollIntoView) {
+  var self = this; // Preserve Object context
+  var _comment = self.createComment();
+  _comment.insert(comment, scrollIntoView);
+};
 
 module.exports = {
   editorify: editorify,

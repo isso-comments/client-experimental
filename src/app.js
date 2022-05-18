@@ -3,6 +3,8 @@
 var _api = require('api');
 var api;
 
+var widget = require('widget');
+
 // init() should set up Isso, fetch configs & insert Postbox
 //
 // also insert comment counters for links to threads on page?
