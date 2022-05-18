@@ -6,7 +6,7 @@ var html = function (globals) {
   var humanize = globals.humanize;
   var svg = globals.svg;
 
-  var author = comment.author ? comment.author : i18n('comment-anonymous');
+  var author = comment.author ? comment.author : i18n.translate('comment-anonymous');
   var isPageAuthor = conf["page-author-hashes"].indexOf(comment.hash) > -1;
   var pageAuthorClass = (isPageAuthor ? " isso-is-page-author" : '');
 
@@ -21,14 +21,14 @@ var html = function (globals) {
         : "<span class='isso-author'>" + author + "</span>")
     + (isPageAuthor
         ? "<span class='isso-spacer'>&bull;</span>"
-          + "<span class='isso-page-author-suffix'>" + i18n('comment-page-author-suffix') + "</span>"
+          + "<span class='isso-page-author-suffix'>" + i18n.translate('comment-page-author-suffix') + "</span>"
         : '' )
      + "<span class='isso-spacer'>&bull;</span>"
      + "<a class='isso-permalink' href='#isso-" + comment.id + "'>"
        + "<time title='" + humanize(comment.created) + "' datetime='" + datetime(comment.created) + "'>" + humanize(comment.created) + "</time>"
      + "</a>"
      + "<span class='isso-note'>"
-         + (comment.mode == 2 ? i18n('comment-queued') : (comment.mode == 4 ? i18n('comment-deleted') : ''))
+         + (comment.mode == 2 ? i18n.translate('comment-queued') : (comment.mode == 4 ? i18n.translate('comment-deleted') : ''))
      + "</span>"
   + "</div>" // .text-wrapper
   + "<div class='isso-text'>"
@@ -40,9 +40,9 @@ var html = function (globals) {
           + "<span class='isso-spacer'>|</span>"
           + "<a class='isso-downvote' href='#'>" + svg['arrow-down'] + "</a>"
         : '')
-     + "<a class='isso-reply' href='#'>" + i18n('comment-reply') + "</a>"
-     + "<a class='isso-edit' href='#'>" + i18n('comment-edit') + "</a>"
-     + "<a class='isso-delete' href='#'>" + i18n('comment-delete') + "</a>"
+     + "<a class='isso-reply' href='#'>" + i18n.translate('comment-reply') + "</a>"
+     + "<a class='isso-edit' href='#'>" + i18n.translate('comment-edit') + "</a>"
+     + "<a class='isso-delete' href='#'>" + i18n.translate('comment-delete') + "</a>"
   + "</div>" // .isso-comment-footer
 + "</div>" // .text-wrapper
 + "<div class='isso-follow-up'></div>"

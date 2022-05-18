@@ -149,10 +149,10 @@ var catalogue = {
 };
 
 var I18n = function() {
-  var config = null;
-  var lang = null;
-  var plural = null;
-  var translations = null;
+  this.config = null;
+  this.lang = null;
+  this.plural = null;
+  this.translations = null;
 };
 
 I18n.prototype.setLangs = function() {
@@ -162,8 +162,8 @@ I18n.prototype.setLangs = function() {
   // entry and a pluralforms entry for it.  if we don't, try chopping
   // off everything but the primary language subtag, before moving
   // on to the next one.
-  for (var i = 0; i < self.config.langs.length; i++) {
-      self.lang = self.config.langs[i];
+  for (var i = 0; i < self.config["langs"].length; i++) {
+      self.lang = self.config["langs"][i];
       self.plural = pluralforms(self.lang);
       self.translations = catalogue[self.lang];
       if (self.plural && self.translations)

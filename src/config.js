@@ -50,6 +50,9 @@ var defaultConfig = {
 
 var Config = function() {
   this.config = {};
+  for (var key in defaultConfig) {
+      this.config[key] = defaultConfig[key];
+  }
 };
 
 // DOM dependent

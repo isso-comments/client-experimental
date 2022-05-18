@@ -1,7 +1,10 @@
-var foo = function(last) {
-  last++;
-};
+'use strict';
 
-var lastcreated = 0;
-foo(lastcreated);
-console.log(lastcreated);
+var appObj = null;
+//var init = function() {
+function init() {
+  appObj = 1;
+  return appObj;
+}
+
+console.log(init());

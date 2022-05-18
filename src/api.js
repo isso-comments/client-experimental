@@ -80,7 +80,7 @@ var getEndpoint = function() {
 
 // DOM dependent
 // Split into own function to allow mocking
-var _updateTimeOffset = function(time) {
+var _updateTimeOffset = function(date) {
   globals.offset.update(new Date(date));
 };
 
@@ -95,7 +95,7 @@ var _curl = function(method, url, data, resolve, reject) {
   function onload() {
     var date = xhr.getResponseHeader("Date");
     if (date !== null) {
-      updateTimeOffset(new Date(date));
+      _updateTimeOffset(new Date(date));
     }
     var cookie = xhr.getResponseHeader("X-Set-Cookie");
     if (cookie && cookie.match(/^isso-/)) {

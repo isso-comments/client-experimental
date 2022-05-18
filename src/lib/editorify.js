@@ -5,7 +5,8 @@ var editorify = function(el) {
   el = $.htmlify(el);
   el.setAttribute("contentEditable", true);
   // Save placeholder "Type comment here" text
-  el.dataset["postbox-text"] = el.textContent;
+  // Note: dataset does not allow dashes for member names...
+  el.dataset["postboxtext"] = el.textContent;
 
   el.on("focus", function() {
     if (el.classList.contains("isso-placeholder")) {
@@ -23,3 +24,5 @@ var editorify = function(el) {
 
   return el;
 };
+
+module.exports = editorify;

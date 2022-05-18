@@ -15,51 +15,46 @@ Functions (dependent on config):
 var $ = require('lib/dom');
 var api = require('api');
 var config = require('config');
+var counter = require('counter');
 var i18n = require('i18n');
 var svg = require('svg');
 var template = require('template');
+var utils = require('utils');
 
 var commentHelper = require('comment');
 var postbox = require('postbox');
 
 var App = function() {
-  this.api = null;
-  this.config = null;
-  this.counter = null;
-  this.i18n = null;
-  this.localStorage = null;
-  this.template = null;
-
-  // Own DOM elements
-  this.issoRoot = null;
-  this.issoThread = null;
-  this.heading = null;
-};
-
-App.prototype.constructor = function() {
   var self = this; // Preserve App object instance context
 
   self.api = new api.API();
   self.api.location = api.getLocation();
   self.api.endpoint = api.getEndpoint();
 
-  self.config = new config.Config();
-  self.config.init();
+  self._conf = new config.Config();
+  self._conf.init();
+  self.config = self._conf.config;
+  self.defaultConfig = config.defaultConfig;
+
+  self.i18n = new i18n.I18n();
+  self.i18n.config = self.config;
+  self.i18n.setLangs();
 
   self.counter = new counter.Counter();
   self.counter.api = self.api;
-  self.counter.pluralize = self.i18n.pluralize;
-
-  self.i18n = new i18n.I18n();
-  self.i18n.setLangs();
+  self.counter.i18n = self.i18n;
 
   self.localStorage = utils.localStorageImpl();
   self.template = new template.Template();
 
-  self.template.set("conf", self.config);
-  self.template.set("i18n", self.i18n.translate);
-  self.template.set("pluralize", self.i18n.pluralize);
-  self.template.set("svg", svg);
+  self.template.templateVars["conf"] = self.config;
+  self.template.templateVars["i18n"] = self.i18n;
+  self.template.templateVars["svg"] = self.svg;
+
+  // Own DOM elements
+  this.issoRoot = null;
+  this.issoThread = null;
+  this.heading = null;
 };
 
 App.prototype.initWidget = function() {
@@ -79,7 +74,7 @@ App.prototype.initWidget = function() {
 
   self.insertFeed();
 
-  self.issoThread.append(heading);
+  self.issoThread.append(self.heading);
   self.issoThread.append('<div id="isso-root"></div>');
 };
 
@@ -98,6 +93,7 @@ App.prototype.insertStyles = function() {
 }
 
 App.prototype.insertFeed = function() {
+  var self = this; // Preserve App object instance context
   if (self.config["feed"]) {
     var feedLink = $.new('a', self.i18n.translate('atom-feed'));
     var feedLinkWrapper = $.new('span.isso-feedlink');
@@ -110,6 +106,7 @@ App.prototype.insertFeed = function() {
 };
 
 App.prototype.fetchComments = function() {
+  var self = this; // Preserve App object instance context
   if (!$('#isso-root')) {
     // Perhaps throw something here instead?
     return console.log("abort, #isso-root is missing");
@@ -117,11 +114,12 @@ App.prototype.fetchComments = function() {
   self.issoRoot = $('#isso-root');
   self.issoRoot.textContent = '';
 
-  var tid = self.issoThread.getAttribute("data-isso-id") || self.api.getLocation();
+  var tid = self.issoThread.getAttribute("data-isso-id") || api.getLocation();
 
   self.api.fetch(tid, self.config["max-comments-top"],
       self.config["max-comments-nested"]) .then(
     function (rv) {
+      console.log("fetchComments rv ", rv);
       self.mergeConfigs(rv);
 
       self.issoRoot.prepend(self.createPostbox(null));
@@ -167,6 +165,7 @@ App.prototype.scrollToHash = function() {
 };
 
 App.prototype.mergeConfigs = function(rv) {
+  var self = this; // Preserve App object instance context
   for (var setting in rv.config) {
     // TODO: Also check against default values here, see related PR
     if (setting in self.config && self.config[setting] != rv.config[setting]) {
@@ -180,9 +179,10 @@ App.prototype.mergeConfigs = function(rv) {
 };
 
 App.prototype.createPostbox = function(parent) {
+  console.log("createPostbox");
   var self = this; // Preserve App object instance context
-  var _postbox = new postbox.Postbox(parent, self.api, self.config,
-      self.localStorage, self.template, self);
+  var _postbox = new postbox.Postbox(parent, self.api, self, self.config,
+      self.localStorage, self.template);
   return _postbox;
 };
 

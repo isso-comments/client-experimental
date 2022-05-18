@@ -25,22 +25,12 @@ var ValidationError = {
 };
 
 
-var Postbox = function() {
-  this.api = null;
-  this.app = null; // this backref feels yuck
-  this.config = null;
-  this.element = null;
-  this.localStorage = null;
-  this.parent = null;
-  this.template = null; // does this need to be stateful?
-}
-
-Postbox.prototype.constructor = function(parent, api, app, config,
-    localStorage, template) {
+var Postbox = function(parent, api, app, config, localStorage, template) {
 
   var self = this; // Preserve Object context
 
   self.parent = parent;
+
   self.api = api;
   self.app = app;
   self.config = config;

@@ -9,7 +9,7 @@ Uses:
 var $ = require('lib/dom');
 
 // DOM dependent
-var _extractThreads() {
+var _extractThreads = function() {
   var objs = {};
   $.each("a", function(el) {
     if (! el.href.match || ! el.href.match(/#isso-thread$/)) {
@@ -32,22 +32,25 @@ var _extractThreads() {
 
 var Counter = function() {
   this.api = null;
-  this.pluralize = null;
+  this.i18n = null;
 };
 
 // DOM dependent
 // Split into own function to allow mocking
-Counter.prototype._setCounter(el, num) {
-  el.textContent = this.pluralize("num-comments", num);
+Counter.prototype._setCounter = function(el, num) {
+  var self = this; // Preserve Counter object instance context
+  el.textContent = self.i18n.pluralize("num-comments", num);
 };
 
 // TODO: Maybe split this func up further,
 // once API returns {url: count} dict instead of array
-Counter.prototype.setCommentCounts() {
+Counter.prototype.setCommentCounts = function() {
   var self = this; // Preserve Object context
 
   var objs = _extractThreads();
-  (!objs && return);
+  if (!objs) {
+    return;
+  }
 
   var urls = Object.keys(objs);
 

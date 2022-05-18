@@ -105,6 +105,8 @@ function Element(node) {
 
   this.classList = node.classList;
 
+  this.dataset = node.dataset;
+
   Object.defineProperties(this, {
     "textContent": {
       get: function() {
@@ -137,9 +139,10 @@ function Element(node) {
       set: function(placeholder) {
         node.placeholder = placeholder;
       }
-    }
+    },
   });
 }
+
 
 var Toggle = function(a, b) {
   this.state = false;

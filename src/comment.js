@@ -34,26 +34,18 @@ var utils = require('utils');
 
 var DEFAULT_COOKIE_TIMEOUT = 15 * 1000; // 15 minutes = Default edit cookie validity
 
-var Comment = function() {
-  this.api = null;
-  this.app = null;
-  this.config = null;
-  this.i18n = null;
-  this.template = null;
+var Comment = function(api, app, config, i18n, template) {
+  this.api = api;
+  this.app = app;
+  this.config = config;
+  this.i18n = i18n;
+  this.template = template;
 
   // Own DOM elements
   this.element = null;
   this.header = null;
   this.footer = null;
   this.text = null;
-};
-
-Comment.prototype.constructor = function(api, app, config, i18n, template) {
-  this.api = api;
-  this.app = app;
-  this.config = config;
-  this.i18n = i18n;
-  this.template = template;
 };
 
 Comment.prototype.insertComment = function(comment, scrollIntoView) {

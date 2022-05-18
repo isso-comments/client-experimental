@@ -75,5 +75,4 @@ var generateIdenticon = function(key, padding, size, config) {
 
 module.exports = {
   generate: generateIdenticon,
-  blank: generateBlank,
 };
