@@ -20,9 +20,33 @@ Functions, rely on set language+config:
 - pluralize
 */
 
-//var en = require('i18n/en');
-var en = function() {};
-//var fr = function() {};
+var bg = require('i18n/bg');
+var cs = require('i18n/cs');
+var da = require('i18n/da');
+var de = require('i18n/de');
+var en = require('i18n/en');
+var fa = require('i18n/fa');
+var fi = require('i18n/fi');
+var fr = require('i18n/fr');
+var hr = require('i18n/hr');
+var hu = require('i18n/hu');
+var ru = require('i18n/ru');
+var it = require('i18n/it');
+var ko = require('i18n/ko');
+var eo = require('i18n/eo');
+var oc = require('i18n/oc');
+var pl = require('i18n/pl');
+var pt_BR = require('i18n/pt_BR');
+var pt_PT = require('i18n/pt_PT');
+var sk = require('i18n/sk');
+var sv = require('i18n/sv');
+var nl = require('i18n/nl');
+var el = require('i18n/el_GR');
+var es = require('i18n/es');
+var vi = require('i18n/vi');
+var zh = require('i18n/zh_CN');
+var zh_CN = require('i18n/zh_CN');
+var zh_TW = require('i18n/zh_TW');
 
 var pluralforms = function(lang) {
   // we currently only need to look at the primary language
