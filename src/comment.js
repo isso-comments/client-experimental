@@ -43,7 +43,7 @@ var Comment = function() {
   this.i18n = null;
   this.template = null;
   this.widget = null;
-}
+};
 
 Comment.prototype.constructor = function(api, config, i18n, template, widget) {
   this.api = api;
@@ -237,6 +237,7 @@ Comment.prototype.toggleDelete = function(toggler, comment, text, header, footer
       }
       del.textContent = i18n.translate("comment-delete");
     });
+  }
 };
 
 // Remove edit and delete buttons when cookie is gone
