@@ -27,11 +27,12 @@ Functions (dependent on config):
 */
 
 var utils = require('utils');
+
 var $ = function(){};
 var identicons = function(){};
 var globals = function(){};
 
-var editorify = require('widget').editorify;
+var editorify = require('editorify');
 
 var DEFAULT_COOKIE_TIMEOUT = 15 * 1000; // 15 minutes = Default edit cookie validity
 
@@ -86,7 +87,7 @@ Comment.prototype.insertComment = function(comment, scrollIntoView) {
     },
     function(toggler) {
       self.toggleReply(toggler, comment, form, footer);
-    };
+    }
   );
 
   $("a.isso-edit", footer).toggle("click",
@@ -95,7 +96,7 @@ Comment.prototype.insertComment = function(comment, scrollIntoView) {
     },
     function(toggler) {
       self.toggleEdit(toggler, comment, text, footer);
-    };
+    }
   );
 
   $("a.isso-delete", footer).toggle("click",
@@ -104,7 +105,7 @@ Comment.prototype.insertComment = function(comment, scrollIntoView) {
     },
     function(toggler) {
       self.toggleDelete(toggler, comment, text, header, footer);
-    };
+    }
   );
 
   if(comment.hasOwnProperty('replies')) {

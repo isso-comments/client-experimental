@@ -15,9 +15,10 @@ Functions (dependent on config):
 */
 
 var utils = require('utils');
+
 var $ = function(){};
 
-var editorify = require('widget').editorify;
+var editorify = require('editorify');
 
 var ValidationError = {
   TEXT_TOO_SHORT: 1,
@@ -74,22 +75,22 @@ Postbox.prototype.validate = function() {
   var self = this; // Preserve Object context
   var reasons = [];
 
-  if (utils.text($(".isso-textarea", self.element.innerHTML).length < 3 ||
-    $(".isso-textarea", self.element.classList.contains("isso-placeholder"))
+  if (utils.text($(".isso-textarea", self.element).innerHTML).length < 3 ||
+    $(".isso-textarea", self.element).classList.contains("isso-placeholder"))
   {
-    $(".isso-textarea", self.element.focus();
+    $(".isso-textarea", self.element).focus();
     reasons.push(ValidationError.TEXT_TOO_SHORT);
   }
   if (self.config["require-email"]
-      && $("[name='email']", self.element.value.length <= 0)
+      && $("[name='email']", self.element).value.length <= 0)
   {
-    $("[name='email']", self.element.focus();
+    $("[name='email']", self.element).focus();
     reasons.push(ValidationError.EMAIL_MISSING);
   }
   if (self.config["require-author"]
-      && $("[name='author']", self.element.value.length <= 0)
+      && $("[name='author']", self.element).value.length <= 0)
   {
-    $("[name='author']", self.element.focus();
+    $("[name='author']", self.element).focus();
     reasons.push(ValidationError.AUTHOR_MISSING);
   }
   return reasons;
@@ -157,7 +158,7 @@ Postbox.prototype.submit = function() {
 
   var tid = $("#isso-thread").getAttribute("data-isso-id") || null;
   var title = $("#isso-thread").getAttribute("data-title") || null;
-  var text = utils.text($(".isso-textarea", self.element).innerHTML),
+  var text = utils.text($(".isso-textarea", self.element).innerHTML);
 
   self.api.create(tid, {
     author: author, email: email, website: website,
