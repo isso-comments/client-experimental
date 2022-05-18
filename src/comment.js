@@ -352,7 +352,7 @@ Comment.prototype.insertLoader = function(comment, lastCreated) {
     entrypoint = $("#isso-" + comment.id + " > .isso-follow-up");
     comment.name = comment.id;
   }
-  self.element = $.htmlify(template.render("comment-loader", {"comment": comment}));
+  self.element = $.htmlify(self.template.render("comment-loader", {"comment": comment}));
 
   entrypoint.append(self.element);
 

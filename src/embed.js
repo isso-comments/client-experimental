@@ -3,6 +3,9 @@
 var _api = require('api');
 var api;
 
+//var $ = require('lib/ready');
+var domready = function(){};
+
 var app = require('app');
 
 // init() should set up Isso, fetch configs & insert Postbox
@@ -23,6 +26,11 @@ function fetchComments() {
 // count() should set/update _all_ comment counters, including the one above the Postbox
 function count() {
 };
+
+domready(function() {
+    init();
+    fetchComments();
+});
 
 window.Isso = {
   init: init,
