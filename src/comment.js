@@ -3,6 +3,8 @@ var $ = function(){};
 var identicons = function(){};
 var globals = function(){};
 
+var editorify = require('widget').editorify;
+
 var Comment = function() {
   this.api = null;
   this.config = null;

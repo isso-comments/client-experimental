@@ -44,11 +44,11 @@ var Widget = function() {
 // TODO: Widget constructor func?
 
 // DOM dependent
-Widget.prototype.editorify = function(el) {
-  var self = this; // Preserve Object context
-
+var editorify = function(el) {
   el = $.htmlify(el);
   el.setAttribute("contentEditable", true);
+  // Save placeholder "Type comment here" text
+  el.dataset["postbox-text"] = el.textContent;
 
   el.on("focus", function() {
     if (el.classList.contains("isso-placeholder")) {
@@ -59,11 +59,15 @@ Widget.prototype.editorify = function(el) {
 
   el.on("blur", function() {
     if (el.textContent.length === 0) {
-      // TODO drop dep on i18n and instead save original text on focus as dataset
-      el.textContent = self.i18n.translate("postbox-text");
+      el.textContent = el.dataset["postbox-text"] || "";
       el.classList.add("isso-placeholder");
     }
   });
 
   return el;
 }
+
+module.exports = {
+  editorify: editorify,
+  Widget: Widget,
+};

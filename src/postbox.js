@@ -1,6 +1,8 @@
 var utils = require('utils');
 var $ = function(){};
 
+var editorify = require('widget').editorify;
+
 var ValidationErrors = {
   TEXT_TOO_SHORT: 1,
   EMAIL_MISSING: 2,
@@ -47,7 +49,7 @@ Postbox.prototype.constructor = function(parent, api, config,
   $(".isso-preview", self.element).on("click", self.edit);
   $("[type=submit]", self.element).on("click", self.submit);
 
-  self.widget.editorify($(".isso-textarea", self.element));
+  editorify($(".isso-textarea", self.element));
 
   return self.element;
 };
