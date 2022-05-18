@@ -4,7 +4,7 @@ module.exports = [
     {
         name: "dev",
         entry: {
-            app: path.resolve(__dirname, 'src', 'app.js'),
+            embed: path.resolve(__dirname, 'src', 'embed.js'),
         },
         /* https://webpack.js.org/configuration/mode/
          * Available modes: development, production, none
