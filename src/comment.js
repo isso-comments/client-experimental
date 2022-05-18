@@ -50,6 +50,10 @@ var Comment = function(api, app, config, i18n, template) {
   this.text = null;
 };
 
+Comment.prototype.create = function() {
+  return new Comment(this.api, this.app, this.config, this.i18n, this.template);
+}
+
 Comment.prototype.insertComment = function(comment, scrollIntoView) {
   var self = this; // Preserve Comment object instance context
 
@@ -111,14 +115,10 @@ Comment.prototype.insertComment = function(comment, scrollIntoView) {
     self.updateVotes(comment.likes - comment.dislikes);
   }
 
-  console.log("insertComment: ", comment);
-
   // Beware: Following statements all use setTimeout()!
 
   // Update calculated offset to comment creation every 60 seconds
-  self.updateOffsetLoop(comment.created);
-
-  console.log("insertComment: loop inserted, id=", comment.id, ", self: ", self);
+  self.updateOffsetLoop(comment.id, comment.created);
 
   // Remove edit and delete buttons when cookie is expired
   self.checkIneditableLoop(comment, "a.isso-edit");
@@ -130,25 +130,23 @@ Comment.prototype.insertComment = function(comment, scrollIntoView) {
   }
 };
 
-Comment.prototype.updateOffset = function(element, created) {
+Comment.prototype.updateOffset = function(element, id, created) {
   var self = this; // Preserve Comment object instance context
-  $(".isso-permalink > time", element).textContent = self.i18n.ago(
-      globals.offset.localTime(),
+  var time = $("#isso-" + id + " > .isso-text-wrapper .isso-permalink > time", element)
+  time.textContent = self.i18n.ago(globals.offset.localTime(),
       new Date(parseInt(created, 10) * 1000));
 };
-Comment.prototype.updateOffsetLoop = function(created) {
+Comment.prototype.updateOffsetLoop = function(id, created) {
   var self = this; // Preserve Comment object instance context
-  self.updateOffset(self.element, created);
+  self.updateOffset(self.element, id, created);
   // TODO Create only one (global) timer, not per-comment
-  setTimeout(function() {self.updateOffsetLoop(created)}, AGO_TIMEOUT);
+  setTimeout(function() {self.updateOffsetLoop(id, created)}, AGO_TIMEOUT);
 };
 
 // On clicking reply/close, insert/remove ("toggle") Postbox below comment
 //Comment.prototype.toggleReply = function(toggler, comment) {
 Comment.prototype.toggleReply = function(comment) {
   var self = this; // Preserve Comment object instance context
-
-  console.log("toggleReply: ", this);
 
   var state = false;
   var form = null;
@@ -173,10 +171,8 @@ Comment.prototype.toggleReply = function(comment) {
 };
 
 Comment.prototype.toggleEdit = function(toggler, comment) {
-
-  console.log("toggleEdit: ", this);
-
   var self = this; // Preserve Comment object instance context
+
   var edit = $("a.isso-edit", self.footer);
   var avatar = self.config["avatar"]
       || self.config["gravatar"] ? $(".isso-avatar", self.element, false)[0] : null;
@@ -237,10 +233,8 @@ Comment.prototype.toggleEdit = function(toggler, comment) {
 };
 
 Comment.prototype.toggleDelete = function(toggler, comment) {
-
-  console.log("toggleDelete: ", this);
-
   var self = this; // Preserve Comment object instance context
+
   var del = $("a.isso-delete", self.footer);
   if (toggler.state) {
     var state = ! toggler.state;
@@ -347,7 +341,8 @@ Comment.prototype.insertReplies = function(comment) {
   var self = this; // Preserve Comment object instance context
   var lastCreated = 0;
   comment.replies.forEach(function(replyObject) {
-    self.insertComment(replyObject, false);
+    var commentObj = self.create();
+    commentObj.insertComment(replyObject, false);
     if(replyObject.created > lastCreated) {
       lastCreated = replyObject.created;
     }
@@ -390,10 +385,11 @@ Comment.prototype.loadHidden = function() {
       }
 
       var lastCreated = 0;
-      rv.replies.forEach(function(commentObject) {
-        self.insertComment(commentObject, false);
+      rv.replies.forEach(function(replyObject) {
+        var commentObj = self.create();
+        commentObj.insertComment(replyObject, false);
         if(commentObject.created > lastCreated) {
-          lastCreated = commentObject.created;
+          lastCreated = replyObject.created;
         }
       });
 
