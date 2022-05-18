@@ -17,7 +17,7 @@ var editorify = function(el) {
 
   el.on("blur", function() {
     if (el.textContent.length === 0) {
-      el.textContent = el.dataset["postbox-text"] || "";
+      el.textContent = el.dataset["postboxtext"] || "";
       el.classList.add("isso-placeholder");
     }
   });

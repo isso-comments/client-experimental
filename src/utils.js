@@ -93,14 +93,11 @@ var normalize_bcp47 = function(tag) {
 // DOM dependent
 // Safari private browsing mode supports localStorage, but throws QUOTA_EXCEEDED_ERR
 var localStorageImpl = function() {
-  console.log("localStorageImpl");
   try {
     localStorage.setItem("x", "y");
     localStorage.removeItem("x");
-    console.log("localStorageImpl works");
     return localStorage;
   } catch (ex) {
-    console.log("localStorageImpl fallback");
     localStorageFallback = (function(storage) {
       return {
         setItem: function(key, val) {

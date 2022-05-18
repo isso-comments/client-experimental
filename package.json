@@ -1,8 +1,9 @@
 {
   "name": "isso-experiment",
   "scripts": {
-    "build": "webpack",
-    "watch": "webpack --watch"
+    "build": "webpack --config-name dev",
+    "watch": "webpack --config-name dev --watch",
+    "build-prod": "webpack --merge --config-name dev --config-name prod"
   },
   "devDependencies": {
     "webpack": "^5.72.1",

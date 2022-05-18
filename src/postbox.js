@@ -111,8 +111,6 @@ Postbox.prototype.checkAuthorRequired = function() {
 };
 
 Postbox.prototype.preview = function(self) {
-  console.log("preview: self: ", self);
-  console.log("preview: api: ", self.api);
   $("[name='preview']", self.element).on("click", function() {
     self.api.preview(utils.text($(".isso-textarea", self.element).innerHTML)).then(
       function(html) {
@@ -128,7 +126,7 @@ Postbox.prototype.edit = function(self) {
 };
 
 Postbox.prototype.submit = function(self) {
-  self.edit();
+  self.edit(self);
   if (self.element.validate(self).length) {
     // TODO: handle and display ValidationError
     return;
