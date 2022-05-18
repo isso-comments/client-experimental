@@ -40,9 +40,19 @@ var html = function (globals) {
           + "<span class='isso-spacer'>|</span>"
           + "<a class='isso-downvote' href='#'>" + svg['arrow-down'] + "</a>"
         : '')
-     + "<a class='isso-reply' href='#'>" + i18n.translate('comment-reply') + "</a>"
-     + "<a class='isso-edit' href='#'>" + i18n.translate('comment-edit') + "</a>"
-     + "<a class='isso-delete' href='#'>" + i18n.translate('comment-delete') + "</a>"
+     + "<a class='isso-reply' "
+       + "data-textreply='" + i18n.translate('comment-reply') + "' "
+       + "data-textclose='" + i18n.translate('comment-close') + "' href='#'>"
+       + i18n.translate('comment-reply') + "</a>"
+     + "<a class='isso-edit' "
+       + "data-textsave='" + i18n.translate('comment-save') + "' "
+       + "data-textedit='" + i18n.translate('comment-edit') + "' "
+       + "data-textcancel='" + i18n.translate('comment-cancel') + "' href='#'>"
+       + i18n.translate('comment-edit') + "</a>"
+     + "<a class='isso-delete' "
+       + "data-textconfirm='" + i18n.translate('comment-confirm') + "' "
+       + "data-textdelete='" + i18n.translate('comment-delete') + "' href='#'>"
+       + i18n.translate('comment-delete') + "</a>"
   + "</div>" // .isso-comment-footer
 + "</div>" // .text-wrapper
 + "<div class='isso-follow-up'></div>"

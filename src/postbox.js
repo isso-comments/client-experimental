@@ -111,13 +111,11 @@ Postbox.prototype.checkAuthorRequired = function() {
 };
 
 Postbox.prototype.preview = function(self) {
-  $("[name='preview']", self.element).on("click", function() {
-    self.api.preview(utils.text($(".isso-textarea", self.element).innerHTML)).then(
-      function(html) {
-        $(".isso-preview .isso-text", self.element).innerHTML = html;
-        self.element.classList.add('isso-preview-mode');
-      });
-  });
+  self.api.preview(utils.text($(".isso-textarea", self.element).innerHTML)).then(
+    function(html) {
+      $(".isso-preview .isso-text", self.element).innerHTML = html;
+      self.element.classList.add('isso-preview-mode');
+    });
 };
 
 Postbox.prototype.edit = function(self) {

@@ -10,7 +10,9 @@ var html = function (globals) {
 "<div class='isso-postbox'>"
  + "<div class='isso-form-wrapper'>"
    + "<div class='isso-textarea-wrapper'>"
-    + "<div class='isso-textarea isso-placeholder' contenteditable='true'>" + i18n.translate('postbox-text') + "</div>"
+    + "<div class='isso-textarea isso-placeholder' "
+      + "data-textplaceholder='" + i18n.translate("postbox-text")
+      + "' contenteditable='true'>" + i18n.translate('postbox-text') + "</div>"
     + "<div class='isso-preview'>"
       + "<div class='isso-comment'>"
         + "<div class='isso-text-wrapper'>"

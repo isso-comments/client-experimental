@@ -32,7 +32,8 @@ var globals = require('globals');
 var identicons = require('lib/identicons');
 var utils = require('utils');
 
-var DEFAULT_COOKIE_TIMEOUT = 15 * 1000; // 15 minutes = Default edit cookie validity
+var COOKIE_REFRESH_TIMEOUT = 15 * 1000; // 15 seconds
+var AGO_TIMEOUT = 60*1000;
 
 var Comment = function(api, app, config, i18n, template) {
   this.api = api;
@@ -75,13 +76,9 @@ Comment.prototype.insertComment = function(comment, scrollIntoView) {
   self.header = $("#isso-" + comment.id + " > .isso-text-wrapper > .isso-comment-header");
   self.text   = $("#isso-" + comment.id + " > .isso-text-wrapper > .isso-text");
 
-  $("a.isso-reply", self.footer).toggle("click",
-    function(toggler) {
-      self.toggleReply(toggler, comment);
-    },
-    function(toggler) {
-      self.toggleReply(toggler, comment);
-    }
+  var toggleReply = self.toggleReply(comment);
+  $("a.isso-reply", self.footer).on("click",
+    toggleReply,
   );
 
   $("a.isso-edit", self.footer).toggle("click",
@@ -113,10 +110,15 @@ Comment.prototype.insertComment = function(comment, scrollIntoView) {
     self.updateVotes(comment.likes - comment.dislikes);
   }
 
+  console.log("insertComment: ", comment);
+
   // Beware: Following statements all use setTimeout()!
 
   // Update calculated offset to comment creation every 60 seconds
   self.updateOffsetLoop(comment.created);
+
+  console.log("insertComment: loop inserted, id=", comment.id, ", self: ", self);
+
   // Remove edit and delete buttons when cookie is expired
   self.checkIneditableLoop(comment, "a.isso-edit");
   self.checkIneditableLoop(comment, "a.isso-delete");
@@ -127,36 +129,52 @@ Comment.prototype.insertComment = function(comment, scrollIntoView) {
   }
 };
 
-Comment.prototype.updateOffset = function(created) {
+Comment.prototype.updateOffset = function(element, created) {
   var self = this; // Preserve Comment object instance context
-  $(".isso-permalink > time", self.element).textContent = self.i18n.ago(
+  $(".isso-permalink > time", element).textContent = self.i18n.ago(
       globals.offset.localTime(),
       new Date(parseInt(created, 10) * 1000));
 };
 Comment.prototype.updateOffsetLoop = function(created) {
   var self = this; // Preserve Comment object instance context
-  self.updateOffset(created);
+  self.updateOffset(self.element, created);
   // TODO Create only one (global) timer, not per-comment
-  setTimeout(self.updateOffsetLoop, 60*1000);
+  setTimeout(function() {self.updateOffsetLoop(created)}, AGO_TIMEOUT);
 };
 
 // On clicking reply/close, insert/remove ("toggle") Postbox below comment
-Comment.prototype.toggleReply = function(toggler, comment) {
+//Comment.prototype.toggleReply = function(toggler, comment) {
+Comment.prototype.toggleReply = function(comment) {
   var self = this; // Preserve Comment object instance context
-  if (toggler.state) {
-    var parent = comment.parent === null ? comment.id : comment.parent;
-    self.footer.form = self.footer.insertAfter(self.app.createPostbox(parent))
-    self.footer.form.onsuccess = function() { toggler.next(); };
-    $(".isso-textarea", self.footer.form).focus();
-    // TODO Move those i18n calls into pre-rendered datasets in template
-    $("a.isso-reply", self.footer).textContent = self.i18n.translate("comment-close");
-  } else {
-    self.footer.form.remove();
-    $("a.isso-reply", self.footer).textContent = self.i18n.translate("comment-reply");
-  }
+
+  console.log("toggleReply: ", this);
+
+  var state = false;
+  var form = null;
+
+  function toggle() {
+    if (!state) {
+      var parent = comment.parent === null ? comment.id : comment.parent;
+      form = self.footer.insertAfter(self.app.createPostbox(parent))
+      //form.onsuccess = function() { toggler.next(); };
+      form.onsuccess = function() { this(); };
+      $(".isso-textarea", form).focus();
+      // TODO Move those i18n calls into pre-rendered datasets in template
+      $("a.isso-reply", self.footer).textContent = self.i18n.translate("comment-close");
+      state = true;
+    } else {
+      form.remove();
+      $("a.isso-reply", self.footer).textContent = self.i18n.translate("comment-reply");
+      state = false;
+    }
+  };
+  return toggle;
 };
 
 Comment.prototype.toggleEdit = function(toggler, comment) {
+
+  console.log("toggleEdit: ", this);
+
   var self = this; // Preserve Comment object instance context
   var edit = $("a.isso-edit", self.footer);
   var avatar = self.config["avatar"]
@@ -218,6 +236,9 @@ Comment.prototype.toggleEdit = function(toggler, comment) {
 };
 
 Comment.prototype.toggleDelete = function(toggler, comment) {
+
+  console.log("toggleDelete: ", this);
+
   var self = this; // Preserve Comment object instance context
   var del = $("a.isso-delete", self.footer);
   if (toggler.state) {
@@ -255,13 +276,14 @@ Comment.prototype.checkIneditable = function (comment, button) {
   }
   return false;
 };
+// Remove edit and delete buttons when cookie is expired
 Comment.prototype.checkIneditableLoop = function(comment, button) {
   var self = this; // Preserve Comment object instance context
   if (!self.checkIneditable(comment, button)) {
     // TODO Create only one (global) timer, not per-comment
     setTimeout(
-      function() { self.checkIneditableLoop(comment, self.footer, button); },
-      DEFAULT_COOKIE_TIMEOUT
+      function() { self.checkIneditableLoop(comment, button); },
+      COOKIE_REFRESH_TIMEOUT
     );
   };
 };
@@ -272,7 +294,7 @@ Comment.prototype.showDirectReplyDelayed = function(reply, comment) {
   if (utils.cookie("isso-" + comment.id)) {
     setTimeout(
       function() { self.showDirectReplyDelayed(reply, comment); },
-      DEFAULT_COOKIE_TIMEOUT
+      COOKIE_REFRESH_TIMEOUT
     );
   } else {
     self.footer.append(reply);
