@@ -20,6 +20,8 @@ Functions (relying on conf fetched from server):
 (none)
 */
 
+var utils = require('utils');
+
 // Static
 var defaultConfig = {
   "css": true,

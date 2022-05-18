@@ -1,5 +1,4 @@
-//var $ = require('dom');
-var $ = function(){};
+var $ = require('lib/dom');
 
 // DOM dependent
 var editorify = function(el) {

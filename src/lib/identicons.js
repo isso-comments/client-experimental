@@ -4,6 +4,7 @@
 
   Inspired by http://codepen.io/gschier/pen/GLvAy
 */
+
 var Q = require('lib/promise');
 
 // Number of squares width and height

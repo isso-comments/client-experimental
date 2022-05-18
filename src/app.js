@@ -16,7 +16,7 @@ var $ = require('lib/dom');
 var api = require('api');
 var config = require('config');
 var i18n = require('i18n');
-//var svg = require('svg');
+var svg = require('svg');
 var template = require('template');
 
 var commentHelper = require('comment');

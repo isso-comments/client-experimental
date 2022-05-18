@@ -23,6 +23,16 @@ module.exports = [
                 'node_modules',
             ],
         },
+        /* https://webpack.js.org/guides/asset-modules/ */
+        module: {
+          rules: [
+            {
+             /* Read raw file contents when `require`-ing .svg files */
+             test: /\.svg/,
+             type: 'asset/source'
+            },
+          ],
+        },
         /* https://webpack.js.org/concepts/output/ */
         output: {
             filename: '[name].dev.js',
