@@ -20,12 +20,9 @@ Functions:
 
 var utils = require('utils');
 
-//var postbox = require("app/templates/postbox");
-//var comment = require("app/templates/comment");
-//var comment_loader = require("app/templates/comment-loader");
-var postbox = function(){};
-var comment = function(){};
-var comment_loader = function(){};
+var postbox = require('templates/postbox');
+var comment = require('templates/comment');
+var commentLoader = require('templates/comment-loader');
 
 var _humanize = function(date) {
   if (typeof date !== "object") {
@@ -56,7 +53,11 @@ var Template = function() {
     humanize: _humanize,
     datetime: _datetime,
   };
-  this.templates = {};
+  this.templates = {
+    "postbox": postbox,
+    "comment": comment,
+    "comment-loader": commentLoader,
+  };
 };
 
 // Ideally, setTemplateVar should not be used (too much state)
@@ -65,6 +66,7 @@ Template.prototype.setTemplateVar = function(name, value) {
   this.templateVars[name] = value;
 };
 
+// Unused, just set directly instead
 Template.prototype.loadTemplate = function(name, templateObj) {
   this.templates[name] = templateObj;
 };
