@@ -19,7 +19,7 @@ var commentHelper = require('comment');
 var postbox = require('postbox');
 
 
-var Widget = function() {
+var App = function() {
   this.api = null;
   this.config = null;
   this.i18n = null;
@@ -27,7 +27,7 @@ var Widget = function() {
   this.template = null;
 };
 
-Widget.prototype.constructor = function(api, config, i18n, localStorage, template) {
+App.prototype.constructor = function(api, config, i18n, localStorage, template) {
   this.api = api;
   this.config = config;
   this.i18n = i18n;
@@ -35,26 +35,26 @@ Widget.prototype.constructor = function(api, config, i18n, localStorage, templat
   this.template = template;
 };
 
-Widget.prototype.createPostbox = function(parent) {
+App.prototype.createPostbox = function(parent) {
   var self = this; // Preserve Object context
   var _postbox = new postbox.Postbox(parent, self.api, self.config,
       self.localStorage, self.template, self);
   return _postbox;
 };
 
-Widget.prototype.createComment = function() {
+App.prototype.createComment = function() {
   var self = this; // Preserve Object context
   var _comment = new commentHelper.Comment(self.api, self.config, self.i18n,
       self.template, self);
   return _comment;
 };
 
-Widget.prototype.insertComment = function(comment, scrollIntoView) {
+App.prototype.insertComment = function(comment, scrollIntoView) {
   var self = this; // Preserve Object context
   var _comment = self.createComment();
   _comment.insert(comment, scrollIntoView);
 };
 
 module.exports = {
-  Widget: Widget,
+  App: App,
 };

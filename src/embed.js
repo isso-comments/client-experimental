@@ -13,7 +13,7 @@ function init() {
   api = new _api.API();
   api.location = _api.getLocation();
   api.endpoint = _api.getEndpoint();
-  window.API = api;
+  window.Isso.api = api;
 };
 
 // fetchComments() should.. fetch comments and insert them (or "load more")
@@ -24,7 +24,7 @@ function fetchComments() {
 function count() {
 };
 
-window.App = {
+window.Isso = {
   init: init,
   fetchComments: fetchComments,
   count: count,
