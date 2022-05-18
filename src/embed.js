@@ -28,12 +28,15 @@ function count() {
 domready(function() {
   init();
   fetchComments();
-});
 
-window.Isso = {
-  init: init,
-  fetchComments: fetchComments,
-  count: count,
-  // DEBUG only!
-  app: appObj,
-};
+  window.Isso = {
+    init: init,
+    fetchComments: fetchComments,
+    count: count,
+    // DEBUG only!
+    // -> does not seem to work because init() has not been called at time of
+    // assignment to window.Isso, thus appObj == null
+    // -> move window.Isso assignment into domread... yuck!
+    app: appObj,
+  };
+});
