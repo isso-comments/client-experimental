@@ -38,10 +38,10 @@ var DEFAULT_COOKIE_TIMEOUT = 15 * 1000; // 15 minutes = Default edit cookie vali
 
 var Comment = function() {
   this.api = null;
+  this.app = null;
   this.config = null;
   this.i18n = null;
   this.template = null;
-  this.widget = null;
 
   // Own DOM elements
   this.element = null;
@@ -50,12 +50,12 @@ var Comment = function() {
   this.text = null;
 };
 
-Comment.prototype.constructor = function(api, config, i18n, template, widget) {
+Comment.prototype.constructor = function(api, app, config, i18n, template) {
   this.api = api;
+  this.app = app;
   this.config = config;
   this.i18n = i18n;
   this.template = template;
-  this.widget = widget;
 };
 
 Comment.prototype.insertComment = function(comment, scrollIntoView) {
@@ -155,7 +155,7 @@ Comment.prototype.updateOffsetLoop = function() {
 Comment.prototype.toggleReply = function(toggler, comment, form) {
   if (!toggler.state) {
     var parent = comment.parent === null ? comment.id : comment.parent;
-    form = self.footer.insertAfter(self.widget.createPostbox(parent))
+    form = self.footer.insertAfter(self.app.createPostbox(parent))
     form.onsuccess = function() { toggler.next(); };
     $(".isso-textarea", form).focus();
     // TODO Move those i18n calls into pre-rendered datasets in template

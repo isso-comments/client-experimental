@@ -3,7 +3,7 @@
 var _api = require('api');
 var api;
 
-var widget = require('widget');
+var app = require('app');
 
 // init() should set up Isso, fetch configs & insert Postbox
 //

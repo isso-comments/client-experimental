@@ -29,25 +29,25 @@ var ValidationError = {
 
 var Postbox = function() {
   this.api = null;
+  this.app = null; // this backref feels yuck
   this.config = null;
   this.element = null;
   this.localStorage = null;
   this.parent = null;
   this.template = null; // does this need to be stateful?
-  this.widget = null; // this backref feels yuck
 }
 
-Postbox.prototype.constructor = function(parent, api, config,
-    localStorage, template, widget) {
+Postbox.prototype.constructor = function(parent, api, app, config,
+    localStorage, template) {
 
   var self = this; // Preserve Object context
 
   self.parent = parent;
   self.api = api;
+  self.app = app;
   self.config = config;
   self.localStorage = localStorage;
   self.template = template;
-  self.widget = widget;
 
   self.element = $.htmlify(self.template.render("postbox", {
     "author":  JSON.parse(self.localStorage.getItem("isso-author")),
@@ -169,7 +169,7 @@ Postbox.prototype.submit = function() {
     $(".isso-textarea", self.element).blur();
 
     // This backref feels yuck
-    self.widget.insertComment(comment, true);
+    self.app.insertComment(comment, true);
 
     if (parent !== null) {
       self.element.onsuccess();
