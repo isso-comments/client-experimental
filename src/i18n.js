@@ -210,7 +210,7 @@ I18n.prototype.pluralize = function(msgid, n) {
   return msg ? msg.replace("{{ n }}", (+ n)) : msg;
 };
 
-var ago = function(localTime, date) {
+I18n.prototype.ago = function(localTime, date) {
 
   var secs = ((localTime.getTime() - date.getTime()) / 1000);
 
@@ -221,22 +221,21 @@ var ago = function(localTime, date) {
   var mins = Math.floor(secs / 60), hours = Math.floor(mins / 60),
       days = Math.floor(hours / 24);
 
-  return secs  <=  45 && translate("date-now")  ||
-         secs  <=  90 && pluralize("date-minute", 1) ||
-         mins  <=  45 && pluralize("date-minute", mins) ||
-         mins  <=  90 && pluralize("date-hour", 1) ||
-         hours <=  22 && pluralize("date-hour", hours) ||
-         hours <=  36 && pluralize("date-day", 1) ||
-         days  <=   5 && pluralize("date-day", days) ||
-         days  <=   8 && pluralize("date-week", 1) ||
-         days  <=  21 && pluralize("date-week", Math.floor(days / 7)) ||
-         days  <=  45 && pluralize("date-month", 1) ||
-         days  <= 345 && pluralize("date-month", Math.floor(days / 30)) ||
-         days  <= 547 && pluralize("date-year", 1) ||
-                         pluralize("date-year", Math.floor(days / 365.25));
+  return secs  <=  45 && self.translate("date-now")  ||
+         secs  <=  90 && self.pluralize("date-minute", 1) ||
+         mins  <=  45 && self.pluralize("date-minute", mins) ||
+         mins  <=  90 && self.pluralize("date-hour", 1) ||
+         hours <=  22 && self.pluralize("date-hour", hours) ||
+         hours <=  36 && self.pluralize("date-day", 1) ||
+         days  <=   5 && self.pluralize("date-day", days) ||
+         days  <=   8 && self.pluralize("date-week", 1) ||
+         days  <=  21 && self.pluralize("date-week", Math.floor(days / 7)) ||
+         days  <=  45 && self.pluralize("date-month", 1) ||
+         days  <= 345 && self.pluralize("date-month", Math.floor(days / 30)) ||
+         days  <= 547 && self.pluralize("date-year", 1) ||
+                         self.pluralize("date-year", Math.floor(days / 365.25));
 };
 
 module.exports = {
   I18n: I18n,
-  ago: ago,
 };

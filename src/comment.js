@@ -51,7 +51,7 @@ var Comment = function(api, app, config, i18n, template) {
 Comment.prototype.insertComment = function(comment, scrollIntoView) {
   var self = this; // Preserve Comment object instance context
 
-  self.element = $.htmlify(template.render("comment", {"comment": comment}));
+  self.element = $.htmlify(self.template.render("comment", {"comment": comment}));
 
   if (self.config["avatar"]) {
     $(".isso-avatar > svg", self.element).replace(
@@ -111,30 +111,30 @@ Comment.prototype.insertComment = function(comment, scrollIntoView) {
     $("a.isso-upvote", self.footer).on("click", self.like);
     $("a.isso-downvote", self.footer).on("click", self.dislike);
 
-    updateVotes(comment.likes - comment.dislikes);
+    self.updateVotes(comment.likes - comment.dislikes);
   }
 
   // Beware: Following statements all use setTimeout()!
 
   // Update calculated offset to comment creation every 60 seconds
-  self.updateOffsetLoop();
+  self.updateOffsetLoop(comment.created);
   // Remove edit and delete buttons when cookie is expired
   self.checkIneditableLoop(comment, "a.isso-edit");
   self.checkIneditableLoop(comment, "a.isso-delete");
   // Allow replying to self if a) reply-to-self enabled or b) cookie expired
   if (! self.config["reply-to-self"] && utils.cookie("isso-" + comment.id)) {
     var reply = $("a.isso-reply", self.footer).detach();
-    showDirectReplyDelayed(reply, comment);
+    self.showDirectReplyDelayed(reply, comment);
   }
 };
 
-Comment.prototype.updateOffset = function() {
+Comment.prototype.updateOffset = function(created) {
   var self = this; // Preserve Comment object instance context
-  $(".isso-permalink > time", self.element).textContent = i18n.ago(
-      globals.offset.localTime(),
-      new Date(parseInt(comment.created, 10) * 1000));
+  //$(".isso-permalink > time", self.element).textContent = self.i18n.ago(
+  //    globals.offset.localTime(),
+  //    new Date(parseInt(created, 10) * 1000));
 };
-Comment.prototype.updateOffsetLoop = function() {
+Comment.prototype.updateOffsetLoop = function(created) {
   var self = this; // Preserve Comment object instance context
   self.updateOffset();
   // TODO Create only one (global) timer, not per-comment
@@ -143,7 +143,8 @@ Comment.prototype.updateOffsetLoop = function() {
 
 // On clicking reply/close, insert/remove ("toggle") Postbox below comment
 Comment.prototype.toggleReply = function(toggler, comment, form) {
-  if (!toggler.state) {
+  var self = this; // Preserve Comment object instance context
+  if (toggler.state) {
     var parent = comment.parent === null ? comment.id : comment.parent;
     form = self.footer.insertAfter(self.app.createPostbox(parent))
     form.onsuccess = function() { toggler.next(); };
@@ -157,13 +158,14 @@ Comment.prototype.toggleReply = function(toggler, comment, form) {
 };
 
 Comment.prototype.toggleEdit = function(toggler, comment) {
+  var self = this; // Preserve Comment object instance context
   var edit = $("a.isso-edit", self.footer);
   var avatar = self.config["avatar"]
       || self.config["gravatar"] ? $(".isso-avatar", self.element, false)[0] : null;
 
-  if (!toggler.state) {
+  if (toggler.state) {
     edit.textContent = self.i18n.translate("comment-save");
-    edit.insertAfter($.new("a.isso-cancel", i18n.translate("comment-cancel")))
+    edit.insertAfter($.new("a.isso-cancel", self.i18n.translate("comment-cancel")))
       .on("click", function() {
         toggler.canceled = true;
         toggler.next();
@@ -218,7 +220,7 @@ Comment.prototype.toggleEdit = function(toggler, comment) {
 
 Comment.prototype.toggleDelete = function(toggler, comment) {
   var del = $("a.isso-delete", self.footer);
-  if (!toggler.state) {
+  if (toggler.state) {
     var state = ! toggler.state;
 
     del.textContent = self.i18n.translate("comment-confirm");
@@ -237,7 +239,7 @@ Comment.prototype.toggleDelete = function(toggler, comment) {
         $("a.isso-edit", self.footer).remove();
         $("a.isso-delete", self.footer).remove();
       }
-      del.textContent = i18n.translate("comment-delete");
+      del.textContent = self.i18n.translate("comment-delete");
     });
   }
 };
@@ -254,7 +256,7 @@ Comment.prototype.checkIneditable = function (comment, button) {
 };
 Comment.prototype.checkIneditableLoop = function(comment, button) {
   var self = this; // Preserve Comment object instance context
-  if (!self.ineditable(comment, self.footer, button)) {
+  if (!self.checkIneditable(comment, button)) {
     // TODO Create only one (global) timer, not per-comment
     setTimeout(
       function() { self.checkIneditableLoop(comment, self.footer, button); },

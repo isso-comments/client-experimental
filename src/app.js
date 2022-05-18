@@ -49,7 +49,7 @@ var App = function() {
 
   self.template.templateVars["conf"] = self.config;
   self.template.templateVars["i18n"] = self.i18n;
-  self.template.templateVars["svg"] = self.svg;
+  self.template.templateVars["svg"] = svg;
 
   // Own DOM elements
   this.issoRoot = null;
@@ -119,7 +119,6 @@ App.prototype.fetchComments = function() {
   self.api.fetch(tid, self.config["max-comments-top"],
       self.config["max-comments-nested"]) .then(
     function (rv) {
-      console.log("fetchComments rv ", rv);
       self.mergeConfigs(rv);
 
       self.issoRoot.prepend(self.createPostbox(null));
@@ -138,7 +137,7 @@ App.prototype.fetchComments = function() {
         }
         count = count + comment.total_replies;
       });
-      heading.textContent = i18n.pluralize("num-comments", count);
+      self.heading.textContent = self.i18n.pluralize("num-comments", count);
 
       if (rv.hidden_replies > 0) {
         self.createCommentObj().insertLoader(rv, lastcreated);
@@ -179,7 +178,6 @@ App.prototype.mergeConfigs = function(rv) {
 };
 
 App.prototype.createPostbox = function(parent) {
-  console.log("createPostbox");
   var self = this; // Preserve App object instance context
   var _postbox = new postbox.Postbox(parent, self.api, self, self.config,
       self.localStorage, self.template);
@@ -189,15 +187,15 @@ App.prototype.createPostbox = function(parent) {
 // Comment object scaffold, does not contain any actual data yet
 App.prototype.createCommentObj = function() {
   var self = this; // Preserve App object instance context
-  var _comment = new commentHelper.Comment(self.api, self.config, self.i18n,
-      self.template, self);
+  var _comment = new commentHelper.Comment(self.api, self, self.config,
+      self.i18n, self.template);
   return _comment;
 };
 
 App.prototype.insertComment = function(comment, scrollIntoView) {
   var self = this; // Preserve App object instance context
   var _comment = self.createCommentObj();
-  _comment.insert(comment, scrollIntoView);
+  _comment.insertComment(comment, scrollIntoView);
 };
 
 module.exports = {

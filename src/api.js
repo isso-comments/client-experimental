@@ -99,7 +99,7 @@ var _curl = function(method, url, data, resolve, reject) {
     }
     var cookie = xhr.getResponseHeader("X-Set-Cookie");
     if (cookie && cookie.match(/^isso-/)) {
-      updateCookie(cookie);
+      _updateCookie(cookie);
     }
     if (xhr.status >= 500) {
       if (reject) {

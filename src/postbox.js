@@ -52,15 +52,15 @@ var Postbox = function(parent, api, app, config, localStorage, template) {
   $("[name='preview']", self.element).on("click", self.preview);
   $("[name='edit']", self.element).on("click", self.edit);
   $(".isso-preview", self.element).on("click", self.edit);
-  $("[type=submit]", self.element).on("click", self.submit);
+  $("[type=submit]", self.element).on("click", function() {self.submit(self)});
 
   editorify($(".isso-textarea", self.element));
 
   return self.element;
 };
 
-Postbox.prototype.validate = function() {
-  var self = this; // Preserve Object context
+Postbox.prototype.validate = function(self) {
+  //var self = this; // Preserve Object context
   var reasons = [];
 
   if (utils.text($(".isso-textarea", self.element).innerHTML).length < 3 ||
@@ -127,11 +127,11 @@ Postbox.prototype.edit = function() {
   self.element.classList.remove('isso-preview-mode');
 };
 
-Postbox.prototype.submit = function() {
-  var self = this; // Preserve Object context
+Postbox.prototype.submit = function(self) {
+  //var self = this; // Preserve Object context
 
   self.edit();
-  if (self.element.validate().length) {
+  if (self.element.validate(self).length) {
     // TODO: handle and display ValidationError
     return;
   }
