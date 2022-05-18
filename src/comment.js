@@ -75,13 +75,12 @@ Comment.prototype.insertComment = function(comment, scrollIntoView) {
   self.header = $("#isso-" + comment.id + " > .isso-text-wrapper > .isso-comment-header");
   self.text   = $("#isso-" + comment.id + " > .isso-text-wrapper > .isso-text");
 
-  var form = null;
   $("a.isso-reply", self.footer).toggle("click",
     function(toggler) {
-      self.toggleReply(toggler, comment, form);
+      self.toggleReply(toggler, comment);
     },
     function(toggler) {
-      self.toggleReply(toggler, comment, form);
+      self.toggleReply(toggler, comment);
     }
   );
 
@@ -142,17 +141,17 @@ Comment.prototype.updateOffsetLoop = function(created) {
 };
 
 // On clicking reply/close, insert/remove ("toggle") Postbox below comment
-Comment.prototype.toggleReply = function(toggler, comment, form) {
+Comment.prototype.toggleReply = function(toggler, comment) {
   var self = this; // Preserve Comment object instance context
   if (toggler.state) {
     var parent = comment.parent === null ? comment.id : comment.parent;
-    form = self.footer.insertAfter(self.app.createPostbox(parent))
-    form.onsuccess = function() { toggler.next(); };
-    $(".isso-textarea", form).focus();
+    self.footer.form = self.footer.insertAfter(self.app.createPostbox(parent))
+    self.footer.form.onsuccess = function() { toggler.next(); };
+    $(".isso-textarea", self.footer.form).focus();
     // TODO Move those i18n calls into pre-rendered datasets in template
     $("a.isso-reply", self.footer).textContent = self.i18n.translate("comment-close");
   } else {
-    form.remove();
+    self.footer.form.remove();
     $("a.isso-reply", self.footer).textContent = self.i18n.translate("comment-reply");
   }
 };
