@@ -1,3 +1,4 @@
+'use strict';
 /*
 Uses:
 - DOM/jquery $ impl
@@ -72,9 +73,9 @@ Comment.prototype.insertComment = function(comment, scrollIntoView) {
     self.element.scrollIntoView();
   }
 
-  self.footer = $("#isso-" + comment.id + " > .isso-text-wrapper > .isso-comment-footer");
-  self.header = $("#isso-" + comment.id + " > .isso-text-wrapper > .isso-comment-header");
-  self.text   = $("#isso-" + comment.id + " > .isso-text-wrapper > .isso-text");
+  self.footer = $("#isso-" + comment.id + " > .isso-text-wrapper > .isso-comment-footer", self.element);
+  self.header = $("#isso-" + comment.id + " > .isso-text-wrapper > .isso-comment-header", self.element);
+  self.text   = $("#isso-" + comment.id + " > .isso-text-wrapper > .isso-text", self.element);
 
   var toggleReply = self.toggleReply(comment);
   $("a.isso-reply", self.footer).on("click",

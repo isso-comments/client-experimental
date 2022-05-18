@@ -1,3 +1,4 @@
+'use strict';
 /*
   Copyright (C) 2013 Gregory Schier <gschier1990@gmail.com>
   Copyright (C) 2013 Martin Zimmermann <info@posativ.org>

@@ -1,3 +1,4 @@
+'use strict';
 function Element(node) {
   this.obj = node;
 

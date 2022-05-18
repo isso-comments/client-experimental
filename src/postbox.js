@@ -1,3 +1,4 @@
+'use strict';
 /*
 Uses:
 - DOM/jquery $ impl
@@ -48,7 +49,7 @@ var Postbox = function(parent, api, app, config, localStorage, template) {
   self.element.validate = self.validate;
   self.checkEmailRequired();
   self.checkAuthorRequired();
-  $("[name='email']", self.element).on("input", self.emailEdit);
+  $("[name='email']", self.element).on("input", self.offerNotifications);
   $("[name='preview']", self.element).on("click", function() {self.preview(self)});
   $("[name='edit']", self.element).on("click", function() {self.edit(self)});
   $(".isso-preview", self.element).on("click", function() {self.edit(self)});
@@ -84,7 +85,7 @@ Postbox.prototype.validate = function(self) {
   return reasons;
 };
 
-Postbox.prototype.emailEdit = function() {
+Postbox.prototype.offerNotifications = function() {
   var self = this; // Preserve Object context
   if (self.config["reply-notifications"]
       && $("[name='email']", self.element).value.length > 0)
@@ -153,7 +154,7 @@ Postbox.prototype.submit = function(self) {
     // This backref feels yuck
     self.app.insertComment(comment, true);
 
-    if (parent !== null) {
+    if (self.parent !== null) {
       self.element.onsuccess();
     }
   });

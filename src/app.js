@@ -1,3 +1,4 @@
+'use strict';
 /*
 Uses:
 - DOM/jquery $ impl

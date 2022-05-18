@@ -1,3 +1,4 @@
+'use strict';
 var Offset = function() {
   this.values = [];
 };

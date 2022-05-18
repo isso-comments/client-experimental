@@ -1,3 +1,4 @@
+'use strict';
 /*
 Uses:
 - utils.normalize_bcp47
@@ -106,7 +107,7 @@ Config.prototype._detectLanguages = function() {
     languages.push(utils.normalize_bcp47(self.config["lang"]));
   }
   if (navigator.languages) {
-    for (i = 0; i < navigator.languages.length; i++) {
+    for (var i = 0; i < navigator.languages.length; i++) {
       if (navigator.languages[i]) {
         found_navlang = true;
         languages.push(utils.normalize_bcp47(navigator.languages[i]));
