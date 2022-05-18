@@ -6,8 +6,7 @@ Uses:
   -> i18n relies on data-isso-* config for language selection
 */
 
-//var $ = require('dom');
-var $ = function() {};
+var $ = require('lib/dom');
 
 // DOM dependent
 var _extractThreads() {

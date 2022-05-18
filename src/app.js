@@ -12,8 +12,7 @@ Functions (DOM-dependent):
 Functions (dependent on config):
 */
 
-//var $ = require('dom');
-var $ = function(){};
+var $ = require('lib/dom');
 var api = require('api');
 var config = require('config');
 var i18n = require('i18n');

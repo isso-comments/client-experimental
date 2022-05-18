@@ -32,10 +32,8 @@ Functions, rely on endpoint:
 - preview
 */
 
-var Q = function(){};
-var globals = function(){};
-//var Q = require('lib/promise');
-//var globals = require('globals');
+var Q = require('lib/promise');
+var globals = require('globals');
 
 var salt = "Eech7co8Ohloopo9Ol6baimi";
 

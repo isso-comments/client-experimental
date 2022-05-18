@@ -14,11 +14,9 @@ Functions (DOM-dependent):
 Functions (dependent on config):
 */
 
+var $ = require('lib/dom');
+var editorify = require('lib/editorify');
 var utils = require('utils');
-
-var $ = function(){};
-
-var editorify = require('editorify');
 
 var ValidationError = {
   TEXT_TOO_SHORT: 1,

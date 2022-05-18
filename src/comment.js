@@ -26,13 +26,11 @@ Functions (DOM-dependent):
 Functions (dependent on config):
 */
 
+var $ = require('lib/dom');
+var editorify = require('lib/editorify');
+var globals = require('globals');
+var identicons = require('lib/identicons');
 var utils = require('utils');
-
-var $ = function(){};
-var identicons = function(){};
-var globals = function(){};
-
-var editorify = require('editorify');
 
 var DEFAULT_COOKIE_TIMEOUT = 15 * 1000; // 15 minutes = Default edit cookie validity
 
