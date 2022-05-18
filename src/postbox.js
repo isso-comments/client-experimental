@@ -49,9 +49,9 @@ var Postbox = function(parent, api, app, config, localStorage, template) {
   self.checkEmailRequired();
   self.checkAuthorRequired();
   $("[name='email']", self.element).on("input", self.emailEdit);
-  $("[name='preview']", self.element).on("click", self.preview);
-  $("[name='edit']", self.element).on("click", self.edit);
-  $(".isso-preview", self.element).on("click", self.edit);
+  $("[name='preview']", self.element).on("click", function() {self.preview(self)});
+  $("[name='edit']", self.element).on("click", function() {self.edit(self)});
+  $(".isso-preview", self.element).on("click", function() {self.edit(self)});
   $("[type=submit]", self.element).on("click", function() {self.submit(self)});
 
   editorify($(".isso-textarea", self.element));
@@ -110,26 +110,24 @@ Postbox.prototype.checkAuthorRequired = function() {
   }
 };
 
-Postbox.prototype.preview = function() {
-  var self = this; // Preserve Object context
+Postbox.prototype.preview = function(self) {
+  console.log("preview: self: ", self);
+  console.log("preview: api: ", self.api);
   $("[name='preview']", self.element).on("click", function() {
     self.api.preview(utils.text($(".isso-textarea", self.element).innerHTML)).then(
       function(html) {
-          $(".isso-preview .isso-text", self.element).innerHTML = html;
-          self.element.classList.add('isso-preview-mode');
+        $(".isso-preview .isso-text", self.element).innerHTML = html;
+        self.element.classList.add('isso-preview-mode');
       });
   });
 };
 
-Postbox.prototype.edit = function() {
-  var self = this; // Preserve Object context
+Postbox.prototype.edit = function(self) {
   $(".isso-preview .isso-text", self.element).innerHTML = '';
   self.element.classList.remove('isso-preview-mode');
 };
 
 Postbox.prototype.submit = function(self) {
-  //var self = this; // Preserve Object context
-
   self.edit();
   if (self.element.validate(self).length) {
     // TODO: handle and display ValidationError

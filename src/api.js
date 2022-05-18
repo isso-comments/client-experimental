@@ -157,7 +157,7 @@ API.prototype.create = function(tid, data) {
   return deferred.promise;
 };
 
-API.prototype.modify = function(endpoint, id, data) {
+API.prototype.modify = function(id, data) {
   var deferred = Q.defer();
   var self = this; // Preserve Object context
   _curl("PUT", self.endpoint + "/id/" + id, JSON.stringify(data), function (rv) {

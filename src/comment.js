@@ -129,13 +129,13 @@ Comment.prototype.insertComment = function(comment, scrollIntoView) {
 
 Comment.prototype.updateOffset = function(created) {
   var self = this; // Preserve Comment object instance context
-  //$(".isso-permalink > time", self.element).textContent = self.i18n.ago(
-  //    globals.offset.localTime(),
-  //    new Date(parseInt(created, 10) * 1000));
+  $(".isso-permalink > time", self.element).textContent = self.i18n.ago(
+      globals.offset.localTime(),
+      new Date(parseInt(created, 10) * 1000));
 };
 Comment.prototype.updateOffsetLoop = function(created) {
   var self = this; // Preserve Comment object instance context
-  self.updateOffset();
+  self.updateOffset(created);
   // TODO Create only one (global) timer, not per-comment
   setTimeout(self.updateOffsetLoop, 60*1000);
 };
@@ -196,10 +196,10 @@ Comment.prototype.toggleEdit = function(toggler, comment) {
           return;
       } else {
           self.api.modify(comment.id, {"text": utils.text(textarea.innerHTML)})
-              .then(function(rv) {
-                self.text.innerHTML = rv.text;
-                comment.text = rv.text;
-              });
+            .then(function(rv) {
+              self.text.innerHTML = rv.text;
+              comment.text = rv.text;
+            });
       }
     } else {
       self.text.innerHTML = comment.text;
@@ -218,6 +218,7 @@ Comment.prototype.toggleEdit = function(toggler, comment) {
 };
 
 Comment.prototype.toggleDelete = function(toggler, comment) {
+  var self = this; // Preserve Comment object instance context
   var del = $("a.isso-delete", self.footer);
   if (toggler.state) {
     var state = ! toggler.state;
@@ -245,6 +246,7 @@ Comment.prototype.toggleDelete = function(toggler, comment) {
 
 // Remove edit and delete buttons when cookie is gone
 Comment.prototype.checkIneditable = function (comment, button) {
+  var self = this; // Preserve Comment object instance context
   if (! utils.cookie("isso-" + comment.id)) {
     if ($(button, self.footer) !== null) {
       $(button, self.footer).remove();
@@ -319,6 +321,7 @@ Comment.prototype.downvote = function() {
 };
 
 Comment.prototype.insertReplies = function(comment) {
+  var self = this; // Preserve Comment object instance context
   var lastCreated = 0;
   comment.replies.forEach(function(replyObject) {
     self.insertComment(replyObject, false);

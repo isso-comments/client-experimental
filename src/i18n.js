@@ -211,6 +211,7 @@ I18n.prototype.pluralize = function(msgid, n) {
 };
 
 I18n.prototype.ago = function(localTime, date) {
+  var self = this; // Preserve Object context
 
   var secs = ((localTime.getTime() - date.getTime()) / 1000);
 
