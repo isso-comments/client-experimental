@@ -20,6 +20,7 @@ Functions (relying on conf fetched from server):
 (none)
 */
 
+// Static
 var defaultConfig = {
   "css": true,
   "css-url": null,
@@ -51,7 +52,7 @@ var Config = function() {
 
 // DOM dependent
 // Dependent on data-isso-* attributes
-Config.prototype._readFromScriptTag() {
+Config.prototype._readFromScriptTag = function() {
   var self = this; // Preserve Object context
 
   var js = document.getElementsByTagName("script");
@@ -70,7 +71,7 @@ Config.prototype._readFromScriptTag() {
   }
 
   // Convert vote-levels from string to array
-  if (typeof self.config["vote-levels" === "string") {
+  if (typeof self.config["vote-levels"] === "string") {
     // Eg. -5,5,15
     self.config["vote-levels"] = self.config["vote-levels"].split(',');
   }
@@ -83,7 +84,7 @@ Config.prototype._readFromScriptTag() {
 };
 
 // DOM dependent (navigator.lang*)
-Config.prototype._detectLanguages() {
+Config.prototype._detectLanguages = function() {
   var self = this; // Preserve Object context
 
   // create an array of normalized language codes from:
@@ -126,11 +127,12 @@ Config.prototype._detectLanguages() {
   delete self.config["default-lang"];
 };
 
-Config.prototype.init() {
+Config.prototype.init = function() {
   this._readFromScriptTag();
   this._detectLanguages();
 };
 
 module.exports = {
+  defaultConfig: defaultConfig,
   Config: Config,
 };

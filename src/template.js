@@ -18,8 +18,7 @@ Functions:
   -> functional, depends only on utils.pad
 */
 
-//var utils = require("app/utils");
-var utils = function(){};
+var utils = require('utils');
 
 //var postbox = require("app/templates/postbox");
 //var comment = require("app/templates/comment");
@@ -49,7 +48,7 @@ var _datetime = function(date) {
     utils.pad(date.getUTCMinutes(), 2),
     utils.pad(date.getUTCSeconds(), 2)
   ].join(":") + "Z";
-});
+};
 
 
 var Template = function() {

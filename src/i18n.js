@@ -131,7 +131,7 @@ var I18n = function() {
   var translations = null;
 };
 
-I18n.prototype.setLangs() {
+I18n.prototype.setLangs = function() {
   var self = this; // Preserve Object context
 
   // for each entry in config.langs, see whether we have a catalogue
