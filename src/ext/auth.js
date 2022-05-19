@@ -1,6 +1,7 @@
 'use strict';
 
 /*
+ * Example extension.
  * Send auth header with every curl() call
  */
 

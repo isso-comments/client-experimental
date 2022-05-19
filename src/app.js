@@ -66,11 +66,12 @@ var App = function() {
 };
 
 App.prototype.registerExtensions = function() {
-  if (!window.IssoExt) {
+  var self = this; // Preserve App object instance context
+  if (!(window.Isso && window.Isso.Ext)) {
     return;
   }
   try {
-    self.ext.registerHooks(window.IssoExt.hooks);
+    self.ext.registerHooks(window.Isso.Ext.hooks);
   } catch (ex) {
     console.log("Error registering extensions:", ex);
   }

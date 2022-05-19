@@ -3,24 +3,6 @@
 var app = require('app');
 var domready = require('lib/ready');
 
-// closure, but should not be necessary
-/*
-var issoApp = function() {
-  var appObj = null;
-  return {
-    var setApp = function(obj) { appObj = obj; },
-    var getApp = function() { return appObj; },
-  }
-};
-*/
-
-var authExt = require('ext/auth');
-var auth = new authExt();
-
-window.IssoExt = {
-  hooks: auth.hooks,
-}
-
 var issoApp = new app.App();
 
 // init() should set up Isso, fetch configs & insert Postbox
@@ -42,15 +24,20 @@ function count() {
   issoApp.counter.setCommentCounts();
 };
 
+if (!window.Isso) { window.Isso = {} }
+window.Isso.init = init;
+window.Isso.fetchComments = fetchComments;
+window.Isso.count = count;
+window.Isso.registerExtensions = issoApp.registerExtensions.bind(issoApp);
+// Called "unstable" because app internals are subject to change!
+window.Isso.unstableApp = issoApp;
+
 domready(function() {
+  // Allow sites to prevent loading the Isso widget and instead
+  // call init()/fetchComments() on their own
+  if (window.Isso.preventInit === true) {
+    return;
+  }
   init();
   fetchComments();
 });
-
-window.Isso = {
-  init: init,
-  fetchComments: fetchComments,
-  count: count,
-  // Called "unstable" because app internals are subject to change!
-  unstableApp: issoApp,
-};

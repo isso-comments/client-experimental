@@ -86,3 +86,54 @@ app.initWidget()
 
 I'm still also very unclear about scopes. Especially `this` and how it resolves
 inside Object instances and through calls to prototyped-member functions.
+
+### More access
+
+The embed script now exposes the main `app` object as `window.Isso.unstableApp`:
+
+```javascript
+window.Isso = {
+  init: init,
+  fetchComments: fetchComments,
+  count: count,
+  registerExtensions: issoApp.registerExtensions,
+  // Called "unstable" because app internals are subject to change!
+  unstableApp: issoApp,
+}
+```
+Called `unstableApp` because it should not be relied upon, but could still be
+nice for testing or (unsafe) extensibility.
+
+To prevent Isso from initializing fully and adding any elements to the page, set
+`window.Isso.preventInit = true`. Then do any setup you require and call
+`window.Isso.init()` and `fetchComments()` manually.
+
+### Extensions
+
+Now with extensions! See `extensions.js` and the `this.ext` attribute ob `app`.
+
+**Example:**
+
+```javascript
+var AuthExtension = function() {
+  var addAuthHeader = function(xhr) {
+    // read auth from somewhere...
+    var authHeader = ["Auth-Foo", "foo"];
+    // and add it to every XMLHttpRequest:
+    xhr.setRequestHeader(authHeader[0], authHeader[1]);
+  };
+  this.hooks = {
+    "curl.xhr": addAuthHeader,
+  };
+};
+
+var auth = new AuthExtension();
+window.Isso.Ext = {
+  hooks: auth.hooks,
+};
+// Register manually:
+window.Isso.registerExtensions();
+```
+
+Now, every call to `api.curl` will have the `XMLHttpRequest`(`xhr`) object
+modified with an added authentication header `Auth-Foo = foo`.
