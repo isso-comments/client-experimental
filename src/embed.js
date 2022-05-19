@@ -3,40 +3,54 @@
 var app = require('app');
 var domready = require('lib/ready');
 
-var appObj = null;
+// closure, but should not be necessary
+/*
+var issoApp = function() {
+  var appObj = null;
+  return {
+    var setApp = function(obj) { appObj = obj; },
+    var getApp = function() { return appObj; },
+  }
+};
+*/
+
+var authExt = require('ext/auth');
+var auth = new authExt();
+
+window.IssoExt = {
+  hooks: auth.hooks,
+}
+
+var issoApp = new app.App();
 
 // init() should set up Isso, fetch configs & insert Postbox
-//
-// also insert comment counters for links to threads on page?
-// -> IMO belongs into fetchComments? -> shove into own func
+// (at the moment does not fetch configs and no postbox)
 function init() {
-  appObj = new app.App();
-  appObj.initWidget();
+  issoApp.initWidget();
+  // also insert comment counters for links to threads on page?
+  // -> IMO belongs into fetchComments? -> shove into own func
 };
 
 // fetchComments() should.. fetch comments and insert them (or "load more")
 function fetchComments() {
-  appObj.fetchComments();
+  issoApp.fetchComments();
 };
 
 // count() should set/update _all_ comment counters, including the one above the Postbox
 function count() {
   // Already part of initWidget() and thus init()
-  appObj.counter.setCommentCounts();
+  issoApp.counter.setCommentCounts();
 };
 
 domready(function() {
   init();
   fetchComments();
-
-  window.Isso = {
-    init: init,
-    fetchComments: fetchComments,
-    count: count,
-    // DEBUG only!
-    // -> does not seem to work because init() has not been called at time of
-    // assignment to window.Isso, thus appObj == null
-    // -> move window.Isso assignment into domread... yuck!
-    app: appObj,
-  };
 });
+
+window.Isso = {
+  init: init,
+  fetchComments: fetchComments,
+  count: count,
+  // Called "unstable" because app internals are subject to change!
+  unstableApp: issoApp,
+};

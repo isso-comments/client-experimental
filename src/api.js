@@ -91,7 +91,33 @@ var _updateCookie = function(cookie) {
   document.cookie = cookie;
 };
 
-var _curl = function(method, url, data, resolve, reject) {
+// Encode URI
+var _qs = function(params) {
+  var rv = "";
+  for (var key in params) {
+    if (params.hasOwnProperty(key) &&
+      params[key] !== null && typeof(params[key]) !== "undefined") {
+      rv += key + "=" + encodeURIComponent(params[key]) + "&";
+    }
+  }
+  return rv.substring(0, rv.length - 1);  // chop off trailing "&"
+};
+
+
+var API = function() {
+  this.location = null;
+  this.endpoint = null;
+  this.ext = null;
+}
+
+API.prototype.init = function() {
+  this.location = getLocation();
+  this.endpoint = getEndpoint();
+}
+
+API.prototype.curl = function(method, url, data, resolve, reject) {
+  var self = this;
+
   var xhr = new XMLHttpRequest();
   function onload() {
     var date = xhr.getResponseHeader("Date");
@@ -110,10 +136,18 @@ var _curl = function(method, url, data, resolve, reject) {
       resolve({status: xhr.status, body: xhr.responseText});
     }
   }
+
   try {
     xhr.open(method, url, true);
     xhr.withCredentials = true;
     xhr.setRequestHeader("Content-Type", "application/json");
+
+    // Run extension hooks
+    try {
+      self.ext.runHooks("curl.xhr", xhr);
+    } catch (ex) {
+      console.log("api runHooks: ", ex);
+    }
 
     xhr.onreadystatechange = function () {
       if (xhr.readyState === 4) {
@@ -126,28 +160,10 @@ var _curl = function(method, url, data, resolve, reject) {
   xhr.send(data);
 };
 
-// Encode URI
-var _qs = function(params) {
-    var rv = "";
-    for (var key in params) {
-        if (params.hasOwnProperty(key) &&
-            params[key] !== null && typeof(params[key]) !== "undefined") {
-            rv += key + "=" + encodeURIComponent(params[key]) + "&";
-        }
-    }
-    return rv.substring(0, rv.length - 1);  // chop off trailing "&"
-};
-
-
-var API = function() {
-  this.location = null;
-  this.endpoint = null;
-}
-
 API.prototype.create = function(tid, data) {
   var deferred = Q.defer();
-  var self = this; // Preserve Object context
-  _curl("POST", self.endpoint + "/new?" + _qs({uri: tid || self.location}), JSON.stringify(data),
+  var self = this;
+  self.curl("POST", self.endpoint + "/new?" + _qs({uri: tid || self.location}), JSON.stringify(data),
     function (rv) {
       if (rv.status === 201 || rv.status === 202) {
         deferred.resolve(JSON.parse(rv.body));
@@ -160,8 +176,8 @@ API.prototype.create = function(tid, data) {
 
 API.prototype.modify = function(id, data) {
   var deferred = Q.defer();
-  var self = this; // Preserve Object context
-  _curl("PUT", self.endpoint + "/id/" + id, JSON.stringify(data), function (rv) {
+  var self = this;
+  self.curl("PUT", self.endpoint + "/id/" + id, JSON.stringify(data), function (rv) {
     if (rv.status === 403) {
       deferred.reject("Not authorized to modify this comment!");
     } else if (rv.status === 200) {
@@ -175,8 +191,8 @@ API.prototype.modify = function(id, data) {
 
 API.prototype.remove = function(id) {
   var deferred = Q.defer();
-  var self = this; // Preserve Object context
-  _curl("DELETE", self.endpoint + "/id/" + id, null, function(rv) {
+  var self = this;
+  self.curl("DELETE", self.endpoint + "/id/" + id, null, function(rv) {
     if (rv.status === 403) {
       deferred.reject("Not authorized to remove this comment!");
     } else if (rv.status === 200) {
@@ -190,8 +206,8 @@ API.prototype.remove = function(id) {
 
 API.prototype.view = function(id, plain) {
   var deferred = Q.defer();
-  var self = this; // Preserve Object context
-  _curl("GET", self.endpoint + "/id/" + id + "?" + _qs({plain: plain}), null,
+  var self = this;
+  self.curl("GET", self.endpoint + "/id/" + id + "?" + _qs({plain: plain}), null,
     function(rv) {
       if (rv.status === 200) {
         deferred.resolve(JSON.parse(rv.body));
@@ -203,7 +219,7 @@ API.prototype.view = function(id, plain) {
 };
 
 API.prototype.fetch = function(tid, limit, nested_limit, parent, lastcreated) {
-  var self = this; // Preserve Object context
+  var self = this;
 
   if (typeof(limit) === 'undefined') { limit = "inf"; }
   if (typeof(nested_limit) === 'undefined') { nested_limit = "inf"; }
@@ -219,7 +235,7 @@ API.prototype.fetch = function(tid, limit, nested_limit, parent, lastcreated) {
   }
 
   var deferred = Q.defer();
-  _curl("GET", self.endpoint + "/?" +
+  self.curl("GET", self.endpoint + "/?" +
     _qs(query_dict), null, function(rv) {
       if (rv.status === 200) {
         deferred.resolve(JSON.parse(rv.body));
@@ -233,9 +249,9 @@ API.prototype.fetch = function(tid, limit, nested_limit, parent, lastcreated) {
 };
 
 API.prototype.count = function(urls) {
-  var self = this; // Preserve Object context
+  var self = this;
   var deferred = Q.defer();
-  _curl("POST", self.endpoint + "/count", JSON.stringify(urls), function(rv) {
+  self.curl("POST", self.endpoint + "/count", JSON.stringify(urls), function(rv) {
     if (rv.status === 200) {
       deferred.resolve(JSON.parse(rv.body));
     } else {
@@ -246,9 +262,9 @@ API.prototype.count = function(urls) {
 };
 
 API.prototype.like = function(id) {
-  var self = this; // Preserve Object context
+  var self = this;
   var deferred = Q.defer();
-  _curl("POST", self.endpoint + "/id/" + id + "/like", null, function(rv) {
+  self.curl("POST", self.endpoint + "/id/" + id + "/like", null, function(rv) {
     if (rv.status === 200) {
       deferred.resolve(JSON.parse(rv.body));
     } else {
@@ -259,9 +275,9 @@ API.prototype.like = function(id) {
 };
 
 API.prototype.dislike = function(id) {
-  var self = this; // Preserve Object context
+  var self = this;
   var deferred = Q.defer();
-  _curl("POST", self.endpoint + "/id/" + id + "/dislike", null, function(rv) {
+  self.curl("POST", self.endpoint + "/id/" + id + "/dislike", null, function(rv) {
     if (rv.status === 200) {
       deferred.resolve(JSON.parse(rv.body));
     } else {
@@ -276,9 +292,9 @@ API.prototype.feed = function(tid) {
 };
 
 API.prototype.preview = function(text) {
-  var self = this; // Preserve Object context
+  var self = this;
   var deferred = Q.defer();
-  _curl("POST", self.endpoint + "/preview", JSON.stringify({text: text}),
+  self.curl("POST", self.endpoint + "/preview", JSON.stringify({text: text}),
     function(rv) {
        if (rv.status === 200) {
          deferred.resolve(JSON.parse(rv.body).text);

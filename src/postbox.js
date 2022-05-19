@@ -50,18 +50,18 @@ var Postbox = function(parent, api, app, config, localStorage, template) {
   self.checkEmailRequired();
   self.checkAuthorRequired();
   $("[name='email']", self.element).on("input", self.offerNotifications);
-  $("[name='preview']", self.element).on("click", function() {self.preview(self)});
-  $("[name='edit']", self.element).on("click", function() {self.edit(self)});
-  $(".isso-preview", self.element).on("click", function() {self.edit(self)});
-  $("[type=submit]", self.element).on("click", function() {self.submit(self)});
+  $("[name='preview']", self.element).on("click", self.preview.bind(self));
+  $("[name='edit']", self.element).on("click", self.edit.bind(self));
+  $(".isso-preview", self.element).on("click", self.edit.bind(self));
+  $("[type=submit]", self.element).on("click", self.submit.bind(self));
 
   editorify($(".isso-textarea", self.element));
 
   return self.element;
 };
 
-Postbox.prototype.validate = function(self) {
-  //var self = this; // Preserve Object context
+Postbox.prototype.validate = function() {
+  var self = this; // Preserve Object context
   var reasons = [];
 
   if (utils.text($(".isso-textarea", self.element).innerHTML).length < 3 ||
@@ -111,7 +111,8 @@ Postbox.prototype.checkAuthorRequired = function() {
   }
 };
 
-Postbox.prototype.preview = function(self) {
+Postbox.prototype.preview = function() {
+  var self = this; // Preserve Object context
   self.api.preview(utils.text($(".isso-textarea", self.element).innerHTML)).then(
     function(html) {
       $(".isso-preview .isso-text", self.element).innerHTML = html;
@@ -119,14 +120,16 @@ Postbox.prototype.preview = function(self) {
     });
 };
 
-Postbox.prototype.edit = function(self) {
+Postbox.prototype.edit = function() {
+  var self = this; // Preserve Object context
   $(".isso-preview .isso-text", self.element).innerHTML = '';
   self.element.classList.remove('isso-preview-mode');
 };
 
-Postbox.prototype.submit = function(self) {
+Postbox.prototype.submit = function() {
+  var self = this; // Preserve Object context
   self.edit(self);
-  if (self.element.validate(self).length) {
+  if (self.element.validate.call(self).length) {
     // TODO: handle and display ValidationError
     return;
   }

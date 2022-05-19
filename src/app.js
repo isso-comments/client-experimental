@@ -22,15 +22,22 @@ var svg = require('svg');
 var template = require('template');
 var utils = require('utils');
 
+// Helper for rendering comment area below postbox
 var commentHelper = require('comment');
+// Helper for rendering Postboxes
 var postbox = require('postbox');
+
+var extensions = require('extensions');
 
 var App = function() {
   var self = this; // Preserve App object instance context
 
+  self.ext = extensions;
+  self.registerExtensions();
+
   self.api = new api.API();
-  self.api.location = api.getLocation();
-  self.api.endpoint = api.getEndpoint();
+  self.api.init();
+  self.api.ext = self.ext;
 
   self._conf = new config.Config();
   self._conf.init();
@@ -57,6 +64,17 @@ var App = function() {
   this.issoThread = null;
   this.heading = null;
 };
+
+App.prototype.registerExtensions = function() {
+  if (!window.IssoExt) {
+    return;
+  }
+  try {
+    self.ext.registerHooks(window.IssoExt.hooks);
+  } catch (ex) {
+    console.log("Error registering extensions:", ex);
+  }
+}
 
 App.prototype.initWidget = function() {
   var self = this; // Preserve App object instance context
