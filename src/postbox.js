@@ -158,6 +158,7 @@ Postbox.prototype.submit = function() {
     self.app.insertComment(comment, true);
 
     if (self.parent !== null) {
+      // Remove postbox again if it's not the top-level one
       self.element.onsuccess();
     }
   });

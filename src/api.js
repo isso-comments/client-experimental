@@ -161,8 +161,8 @@ API.prototype.curl = function(method, url, data, resolve, reject) {
 };
 
 API.prototype.create = function(tid, data) {
-  var deferred = Q.defer();
   var self = this;
+  var deferred = Q.defer();
   self.curl("POST", self.endpoint + "/new?" + _qs({uri: tid || self.location}), JSON.stringify(data),
     function (rv) {
       if (rv.status === 201 || rv.status === 202) {
@@ -175,8 +175,8 @@ API.prototype.create = function(tid, data) {
 };
 
 API.prototype.modify = function(id, data) {
-  var deferred = Q.defer();
   var self = this;
+  var deferred = Q.defer();
   self.curl("PUT", self.endpoint + "/id/" + id, JSON.stringify(data), function (rv) {
     if (rv.status === 403) {
       deferred.reject("Not authorized to modify this comment!");
@@ -190,8 +190,8 @@ API.prototype.modify = function(id, data) {
 };
 
 API.prototype.remove = function(id) {
-  var deferred = Q.defer();
   var self = this;
+  var deferred = Q.defer();
   self.curl("DELETE", self.endpoint + "/id/" + id, null, function(rv) {
     if (rv.status === 403) {
       deferred.reject("Not authorized to remove this comment!");
@@ -205,8 +205,8 @@ API.prototype.remove = function(id) {
 };
 
 API.prototype.view = function(id, plain) {
-  var deferred = Q.defer();
   var self = this;
+  var deferred = Q.defer();
   self.curl("GET", self.endpoint + "/id/" + id + "?" + _qs({plain: plain}), null,
     function(rv) {
       if (rv.status === 200) {
@@ -245,6 +245,19 @@ API.prototype.fetch = function(tid, limit, nested_limit, parent, lastcreated) {
         deferred.reject(rv.body);
       }
     });
+  return deferred.promise;
+};
+
+API.prototype.config = function() {
+  var self = this;
+  var deferred = Q.defer();
+  self.curl("GET", self.endpoint + "/config", null, function(rv) {
+    if (rv.status === 200) {
+      deferred.resolve(JSON.parse(rv.body));
+    } else {
+      deferred.reject(rv.body);
+    }
+  });
   return deferred.promise;
 };
 

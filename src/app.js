@@ -25,9 +25,16 @@ var utils = require('utils');
 // Helper for rendering comment area below postbox
 var commentHelper = require('comment');
 // Helper for rendering Postboxes
-var postbox = require('postbox');
+var postboxHelper = require('postbox');
 
 var extensions = require('extensions');
+
+function sleep(delay) {
+  console.log("sleeping for ", delay)
+  var start = new Date().getTime();
+  while (new Date().getTime() < start + delay);
+  console.log("slept for ", delay)
+}
 
 var App = function() {
   var self = this; // Preserve App object instance context
@@ -80,12 +87,19 @@ App.prototype.registerExtensions = function() {
 App.prototype.initWidget = function() {
   var self = this; // Preserve App object instance context
 
+  self.fetchConfig();
+
   self.issoThread = $('#isso-thread');
-  self.heading = $.new("h4");
+  self.heading = $.new("h4.isso-thread-heading");
+  self.issoThread.append(self.heading);
+
+  //sleep(300);
 
   self.insertStyles();
 
   self.counter.setCommentCounts();
+
+  //sleep(300);
 
   if (!self.issoThread) {
     // Perhaps throw something here instead?
@@ -94,7 +108,8 @@ App.prototype.initWidget = function() {
 
   self.insertFeed();
 
-  self.issoThread.append(self.heading);
+  self.issoThread.append(self.createPostbox(null));
+  //sleep(300);
   self.issoThread.append('<div id="isso-root"></div>');
 };
 
@@ -125,8 +140,22 @@ App.prototype.insertFeed = function() {
   }
 };
 
+App.prototype.fetchConfig = function() {
+  // promise.when??
+  var self = this; // Preserve App object instance context
+  self.api.config().then(
+    function (rv) {
+      self.mergeConfigs(rv);
+    },
+    function (err) {
+      console.log(err);
+    }
+  );
+};
+
 App.prototype.fetchComments = function() {
   var self = this; // Preserve App object instance context
+
   if (!$('#isso-root')) {
     // Perhaps throw something here instead?
     return console.log("abort, #isso-root is missing");
@@ -137,12 +166,8 @@ App.prototype.fetchComments = function() {
   var tid = self.issoThread.getAttribute("data-isso-id") || api.getLocation();
 
   self.api.fetch(tid, self.config["max-comments-top"],
-      self.config["max-comments-nested"]) .then(
+                 self.config["max-comments-nested"]).then(
     function (rv) {
-      self.mergeConfigs(rv);
-
-      self.issoRoot.prepend(self.createPostbox(null));
-
       if (rv.total_replies === 0) {
         self.heading.textContent = self.i18n.translate("no-comments");
         return;
@@ -164,7 +189,6 @@ App.prototype.fetchComments = function() {
       }
 
       self.scrollToHash();
-
     },
     function(err) {
       console.log(err);
@@ -186,20 +210,26 @@ App.prototype.scrollToHash = function() {
 App.prototype.mergeConfigs = function(rv) {
   var self = this; // Preserve App object instance context
   for (var setting in rv.config) {
-    // TODO: Also check against default values here, see related PR
-    if (setting in self.config && self.config[setting] != rv.config[setting]) {
+    if (setting in self.config
+          && self.config[setting] != self.defaultConfig[setting]
+          && self.config[setting] != rv.config[setting]) {
         console.log("Isso: Client value '%s' for setting '%s' overridden by server value '%s'.\n" +
-                    "Since Isso version 0.12.6, 'data-isso-%s' is only configured via the server " +
-                    "to keep client and server in sync",
+                    "Since Isso version 0.12.6, certain configuration options like 'data-isso-%s' " +
+                    "that need to match a server setting are only configured via the server " +
+                    "to keep both in sync",
                     self.config[setting], setting, rv.config[setting], setting);
     }
     self.config[setting] = rv.config[setting]
   }
+  // Anything that changes the config from now on is getting us to undefined
+  // territory...
+  // -> but calling initWidget() again will result in new configs fetched from server, so leave this out
+  //Object.freeze(self.config);
 };
 
 App.prototype.createPostbox = function(parent) {
   var self = this; // Preserve App object instance context
-  var _postbox = new postbox.Postbox(parent, self.api, self, self.config,
+  var _postbox = new postboxHelper.Postbox(parent, self.api, self, self.config,
       self.localStorage, self.template);
   return _postbox;
 };

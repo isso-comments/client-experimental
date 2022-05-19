@@ -48,6 +48,7 @@ var defaultConfig = {
   "feed": false,
   "page-author-hashes": "",
 };
+Object.freeze(defaultConfig);
 
 var Config = function() {
   this.config = {};

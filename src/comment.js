@@ -81,11 +81,8 @@ Comment.prototype.insertComment = function(comment, scrollIntoView) {
   self.header = $("#isso-" + comment.id + " > .isso-text-wrapper > .isso-comment-header", self.element);
   self.text   = $("#isso-" + comment.id + " > .isso-text-wrapper > .isso-text", self.element);
 
-  // Create a closure/singleton?
-  var toggleReply = self.toggleReply(comment);
-  $("a.isso-reply", self.footer).on("click",
-    toggleReply,
-  );
+  var replyToggler = self.toggleReply(comment);
+  $("a.isso-reply", self.footer).on("click", replyToggler);
 
   $("a.isso-edit", self.footer).toggle("click",
     function(toggler) {
@@ -145,30 +142,26 @@ Comment.prototype.updateOffsetLoop = function(id, created) {
 };
 
 // On clicking reply/close, insert/remove ("toggle") Postbox below comment
-//Comment.prototype.toggleReply = function(toggler, comment) {
 Comment.prototype.toggleReply = function(comment) {
   var self = this; // Preserve Comment object instance context
 
   var state = false;
   var form = null;
 
-  function toggle() {
+  return function toggle() {
     if (!state) {
       var parent = comment.parent === null ? comment.id : comment.parent;
       form = self.footer.insertAfter(self.app.createPostbox(parent))
-      //form.onsuccess = function() { toggler.next(); };
-      form.onsuccess = function() { this(); };
+      form.onsuccess = function() { toggle(); };
       $(".isso-textarea", form).focus();
       // TODO Move those i18n calls into pre-rendered datasets in template
       $("a.isso-reply", self.footer).textContent = self.i18n.translate("comment-close");
-      state = true;
     } else {
       form.remove();
       $("a.isso-reply", self.footer).textContent = self.i18n.translate("comment-reply");
-      state = false;
     }
+    state = !state;
   };
-  return toggle;
 };
 
 Comment.prototype.toggleEdit = function(toggler, comment) {
