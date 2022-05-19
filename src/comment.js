@@ -81,6 +81,7 @@ Comment.prototype.insertComment = function(comment, scrollIntoView) {
   self.header = $("#isso-" + comment.id + " > .isso-text-wrapper > .isso-comment-header", self.element);
   self.text   = $("#isso-" + comment.id + " > .isso-text-wrapper > .isso-text", self.element);
 
+  // Create a closure/singleton?
   var toggleReply = self.toggleReply(comment);
   $("a.isso-reply", self.footer).on("click",
     toggleReply,
