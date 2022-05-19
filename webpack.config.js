@@ -34,7 +34,7 @@ module.exports = [{
   /* https://webpack.js.org/concepts/output/ */
   output: {
     filename: '[name].dev.js',
-    path: path.resolve(__dirname),
+    path: path.resolve(__dirname, 'dist'),
   },
 }, {
   name: "prod",
@@ -53,6 +53,6 @@ module.exports = [{
   devtool: false, // no eval or source maps in prod
   output: {
     filename: '[name].min.js',
-    path: path.resolve(__dirname),
+    path: path.resolve(__dirname, 'dist'),
   }
 }, ];
