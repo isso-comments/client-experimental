@@ -21,33 +21,37 @@ Functions, rely on set language+config:
 - pluralize
 */
 
-var bg = require('i18n/bg');
-var cs = require('i18n/cs');
-var da = require('i18n/da');
-var de = require('i18n/de');
-var en = require('i18n/en');
-var fa = require('i18n/fa');
-var fi = require('i18n/fi');
-var fr = require('i18n/fr');
-var hr = require('i18n/hr');
-var hu = require('i18n/hu');
-var ru = require('i18n/ru');
-var it = require('i18n/it');
-var ko = require('i18n/ko');
-var eo = require('i18n/eo');
-var oc = require('i18n/oc');
-var pl = require('i18n/pl');
-var pt_BR = require('i18n/pt_BR');
-var pt_PT = require('i18n/pt_PT');
-var sk = require('i18n/sk');
-var sv = require('i18n/sv');
-var nl = require('i18n/nl');
-var el = require('i18n/el_GR');
-var es = require('i18n/es');
-var vi = require('i18n/vi');
-var zh = require('i18n/zh_CN');
-var zh_CN = require('i18n/zh_CN');
-var zh_TW = require('i18n/zh_TW');
+var catalogue = {
+  bg: require('i18n/bg'),
+  cs: require('i18n/cs'),
+  da: require('i18n/da'),
+  de: require('i18n/de'),
+  en: require('i18n/en'),
+  eo: require('i18n/eo'),
+  fa: require('i18n/fa'),
+  fi: require('i18n/fi'),
+  fr: require('i18n/fr'),
+  hr: require('i18n/hr'),
+  hu: require('i18n/hu'),
+  it: require('i18n/it'),
+  ko: require('i18n/ko'),
+  oc: require('i18n/oc'),
+  pl: require('i18n/pl'),
+  'pt-BR': require('i18n/pt-BR'),
+  'pt-PT': require('i18n/pt-PT'),
+  ru: require('i18n/ru'),
+  sk: require('i18n/sk'),
+  sv: require('i18n/sv'),
+  nl: require('i18n/nl'),
+  el: require('i18n/el-GR'),
+  es: require('i18n/es'),
+  vi: require('i18n/vi'),
+  'zh-CN': require('i18n/zh-CN'),
+  'zh-TW': require('i18n/zh-TW'),
+};
+// Aliases, to avoid `require`-ing langs twice and increasing bundle size:
+catalogue.pt = catalogue['pt-BR'];
+catalogue.zh = catalogue['zh-CN'];
 
 var pluralforms = function(lang) {
   // we currently only need to look at the primary language
@@ -116,37 +120,6 @@ var pluralforms = function(lang) {
     default:
       return null;
   }
-};
-
-var catalogue = {
-  bg: bg,
-  cs: cs,
-  da: da,
-  de: de,
-  el: el,
-  en: en,
-  eo: eo,
-  es: es,
-  fa: fa,
-  fi: fi,
-  fr: fr,
-  it: it,
-  ko: ko,
-  hr: hr,
-  hu: hu,
-  oc: oc,
-  pl: pl,
-  pt: pt_BR,
-  "pt-BR": pt_BR,
-  "pt-PT": pt_PT,
-  ru: ru,
-  sk: sk,
-  sv: sv,
-  nl: nl,
-  vi: vi,
-  zh: zh_CN,
-  "zh-CN": zh_CN,
-  "zh-TW": zh_TW
 };
 
 var I18n = function() {
