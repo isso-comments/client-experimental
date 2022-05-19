@@ -3,7 +3,8 @@
   "scripts": {
     "build": "webpack --config-name dev",
     "watch": "webpack --config-name dev --watch",
-    "build-prod": "webpack --merge --config-name dev --config-name prod"
+    "build-prod": "webpack --merge --config-name dev --config-name prod",
+    "test": "jest -c jest.config.js tests/"
   },
   "devDependencies": {
     "webpack": "^5.72.1",

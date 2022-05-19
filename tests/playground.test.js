@@ -11,13 +11,13 @@ console.log(init());
 // http://www.adequatelygood.com/JavaScript-Scoping-and-Hoisting.html
 
 //var foo = 'a';
-test('this, scope and hoisting', () => {
+test.skip('this, scope and hoisting', () => {
   //this.foo = foo;
   // Scopy empty
   expect(this).toEqual({});
 });
 
-test('instances and prototypes', () => {
+test.skip('instances and prototypes', () => {
   document.body.innerHTML = '<div id="foo">fooText</div>';
 
   var API = function() {
@@ -51,7 +51,7 @@ test('instances and prototypes', () => {
   expect(consumer.foo()).toBe("endpoint: foo");
 });
 
-test.only('fake timers and click callbacks', () => {
+test.skip('fake timers and click callbacks', () => {
 
   expect(this).toEqual({});
 
