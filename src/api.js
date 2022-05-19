@@ -146,7 +146,7 @@ API.prototype.curl = function(method, url, data, resolve, reject) {
     try {
       self.ext.runHooks("curl.xhr", xhr);
     } catch (ex) {
-      console.log("api runHooks: ", ex);
+      console.log("Error running API extension hooks: ", ex);
     }
 
     xhr.onreadystatechange = function () {
