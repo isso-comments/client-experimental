@@ -1,4 +1,5 @@
 const config = {
+  modulePaths: ["<rootDir>/src"],
   testEnvironment: "jsdom",
 };
 
