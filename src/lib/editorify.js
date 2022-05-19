@@ -5,9 +5,6 @@ var $ = require('lib/dom');
 var editorify = function(el) {
   el = $.htmlify(el);
   el.setAttribute("contentEditable", true);
-  // Save placeholder "Type comment here" text
-  // Note: dataset does not allow dashes for member names...
-  //el.dataset["postboxtext"] = el.textContent;
 
   el.on("focus", function() {
     if (el.classList.contains("isso-placeholder")) {
@@ -18,7 +15,8 @@ var editorify = function(el) {
 
   el.on("blur", function() {
     if (el.textContent.length === 0) {
-      el.textContent = el.dataset["textplaceholder"] || "";
+      // Note: data-text-placeholder gets converted to lowerCamelCase
+      el.textContent = el.dataset["textPlaceholder"] || "";
       el.classList.add("isso-placeholder");
     }
   });
