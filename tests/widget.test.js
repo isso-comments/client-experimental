@@ -1,103 +1,65 @@
-/* Test the full Isso widet */
+/* Test the full Isso widet
+ * This test might be a bit too heavy to set up, but is quite powerful
+ * */
+
 
 const $ = require('lib/dom');
 const app = require('app');
+const offset = require('offset');
 
-beforeAll(() => {
+var issoApp = null;
+
+beforeEach(() => {
   document.body.innerHTML =
     '<div id=isso-thread></div>' +
     '<script src="http://isso.api/js/embed.min.js"'
           + 'data-isso="/"'
           + 'data-isso-id="1"></script>';
-
-  //jest.mock('app', () => {
-  //  const originalModule = jest.requireActual('app');
-  //  return {
-  //    ...originalModule,
-  //  };
-  //});
+  issoApp = new app.App();
 });
 
-test('Render whole widget', () => {
-
-  /*
-  jest.mock('app', () => {
-    const originalModule = jest.requireActual('app');
-    return {
-      ...originalModule,
-      API: {
-        ...originalModule.API,
-        init: {
-          then: jest.fn((onSuccess, onError) => {
-            onSuccess("foo");
-          }),
-        },
-        config: {
-          then: (onSuccess, onError) => {
-            onSuccess({'avatar': false});
-          },
-        },
-        fetch: {
-          then: (onSuccess, onError) => {
-            onSuccess('bar');
-          },
-        },
-      },
-    };
-  });
-  */
-
-  let issoApp = new app.App();
+test('Fetch mocked config', () => {
   let fakefetchConfig = jest.fn(() =>
     issoApp.mergeConfigs({config: {avatar: false}}),
   );
   jest.spyOn(issoApp, 'fetchConfig')
     .mockImplementation(() => fakefetchConfig());
-
   issoApp.fetchConfig();
   expect(fakefetchConfig).toHaveBeenCalled();
   expect(issoApp.config.avatar).toBe(false);
+});
+
+test('Render whole widget', () => {
 
   issoApp.initWidget();
 
-  var isso_thread = $('#isso-thread');
-  //isso_thread.append('<div id="isso-root"></div>');
+  expect(issoApp.config.avatar).toBe(true);
 
-  //expect(app.api.API.init.then).toHaveBeenCalled();
-  //expect(issoApp.issoThread).toBe("");
+  let comment = {
+    "id": 2,
+    "created": 1651744800.0, // = 2022-05-05T10:00:00.000Z
+    "mode": 1,
+    "text": "<p>A comment with</p>\n<pre><code>code blocks\nNew line: preformatted\n\nDouble newline\n</code></pre>",
+    "author": "John",
+    "website": "http://website.org",
+    "hash": "4505c1eeda98",
+    "parent": null,
+  }
 
   jest.spyOn(issoApp.api, 'fetch')
     .mockImplementation(() => {
       return {
         then: (onSuccess, onError) => {
-          onSuccess({replies: [{id: 1, parent: null, text: ''}]});
+          onSuccess({replies: [comment]});
         },
       };
     });
 
-  jest.mock('globals', () => ({
-    offset: {
-      localTime: jest.fn(() => ({
-        getTime: jest.fn(() => 0),
-      })),
-    },
-  }));
+  let fakeDate = new Date('2022-05-05T11:00:00.000Z'); // comment date + 1h
+  offset.update(fakeDate);
 
-  jest.spyOn(issoApp, 'fetchComments')
-    .mockImplementation(() => {
-      issoApp.issoRoot = $('#isso-root');
-      issoApp.issoRoot.textContent = '';
-      issoApp.insertComment({id: 1, parent: null, text: '<p>Text</p>'});
-      //issoApp.api.fetch(1, 10, 10).then((rv) => {
-      //  rv.replies.forEach((comment) => {
-      //    issoApp.insertComment(comment, false);
-      //  })
-      //});
-    });
-  //issoApp.createCommentObj();
-  //issoApp.insertComment({id: 1, parent: null, text: ''}, false);
   issoApp.fetchComments();
 
-  expect(isso_thread.innerHTML).toMatchSnapshot();
+  expect(issoApp.issoThread.innerHTML).toMatchSnapshot();
 });
 
