@@ -1,21 +1,13 @@
 const $ = require('lib/dom');
-const config = require('config');
 const i18n = require('i18n');
 const offset = require('offset');
 const template = require('template');
 
 const commentHelper = require('comment');
 
-const comment = {
-  "id": 2,
-  "created": 1651744800.0, // = 2022-05-05T10:00:00.000Z
-  "mode": 1,
-  "text": "<p>A comment with</p>\n<pre><code>code blocks\nNew line: preformatted\n\nDouble newline\n</code></pre>",
-  "author": "John",
-  "website": "http://website.org",
-  "hash": "4505c1eeda98",
-  "parent": null,
-}
+// Use a top-level comment without replies, otherwise we also need to mock
+// requirements for inserting comment children
+const fakeComment = require('fixtures/comment-thread').replies[1];
 
 test('Rendered comment should match snapshot', () => {
 
@@ -24,7 +16,6 @@ test('Rendered comment should match snapshot', () => {
     '<script src="http://isso.api/js/embed.min.js" data-isso="/"></script>';
   issoThread = $('#isso-thread');
   issoThread.append('<div id="isso-root"></div>');
-
 
   let conf = {
     "avatar": true,
@@ -60,12 +51,12 @@ test('Rendered comment should match snapshot', () => {
   template_.templateVars['i18n'] = i18n_;
   template_.templateVars['svg'] = {'arrow-up': '<svg></svg>', 'arrow-down': '<svg></svg>'};
 
-  let fakeDate = new Date('2022-05-05T11:00:00.000Z'); // comment date + 1h
+  let fakeDate = new Date('2022-05-05T18:06:49Z'); // comment date + 1h
   offset.update(fakeDate);
 
   let _comment = new commentHelper.Comment(null, null, conf,
     i18n_, template_);
-  _comment.insertComment(comment, false);
+  _comment.insertComment(fakeComment, false);
 
   expect($('.isso-comment').outerHTML).toMatchSnapshot();
 });
