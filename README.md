@@ -80,7 +80,7 @@ App.prototype.initWidget = function() {
 }
 
 // later, in other file:
-var app = app.App();
+var app = new app.App();
 app.initWidget()
 ```
 
@@ -110,7 +110,7 @@ To prevent Isso from initializing fully and adding any elements to the page, set
 
 ### Extensions
 
-Now with extensions! See `extensions.js` and the `this.ext` attribute ob `app`.
+Now with extensions! See `extensions.js` and the `this.ext` attribute of `app`.
 
 **Example:**
 
