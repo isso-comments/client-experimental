@@ -1,12 +1,5 @@
 'use strict';
 
-var Extensions = function() {
-  this.hooks = {};
-  this.ALLOWED_HOOKS = [
-    'api.curl.xhr',
-  ];
-};
-
 /* Example:
   function addAuthHeader(xhr) {xhr.setRequestHeader("Auth-Foo", "foo")};
   [...]
@@ -17,6 +10,13 @@ var Extensions = function() {
   };
   window.Isso.registerHooks();
 */
+
+var Extensions = function() {
+  this.hooks = {};
+  this.ALLOWED_HOOKS = [
+    'api.curl.xhr',
+  ];
+};
 
 Extensions.prototype.registerHook = function(hookedEvent, hook) {
   var self = this;
@@ -57,8 +57,5 @@ Extensions.prototype.runHooks = function(hookedEvent, val) {
     }
   }
 }
-
-//var extensions = new Extensions();
-//module.exports = extensions;
 
 module.exports = Extensions;
