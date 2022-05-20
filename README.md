@@ -123,7 +123,7 @@ var AuthExtension = function() {
     xhr.setRequestHeader(authHeader[0], authHeader[1]);
   };
   this.hooks = {
-    "curl.xhr": addAuthHeader,
+    "api.curl.xhr": [addAuthHeader],
   };
 };
 
@@ -137,3 +137,6 @@ window.Isso.registerExtensions();
 
 Now, every call to `api.curl` will have the `XMLHttpRequest`(`xhr`) object
 modified with an added authentication header `Auth-Foo = foo`.
+
+N.b.: If `window.Isso.Ext` (with hooks set) is already defined when Isso is
+loaded (e.g. in SPAs), Isso will automatically call `registerHooks()` itself.

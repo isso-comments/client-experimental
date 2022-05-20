@@ -7,8 +7,6 @@ Uses:
   -> stateful
 
 One-time setup:
-- salt
-  -> constant
 - location
   -> DOM dependent
 - endpoint
@@ -36,7 +34,8 @@ Functions, rely on endpoint:
 var Q = require('lib/promise');
 var globals = require('globals');
 
-var salt = "Eech7co8Ohloopo9Ol6baimi";
+var API_TIMEOUT = 50; // 5 seconds
+var API_RETRIES = 3; // 3 retries, then abort curl()
 
 // DOM dependent
 var getLocation = function() {
@@ -115,7 +114,7 @@ API.prototype.init = function() {
   this.endpoint = getEndpoint();
 }
 
-API.prototype.curl = function(method, url, data, resolve, reject) {
+API.prototype.curl = function(method, url, data, resolve, reject, retries=0) {
   var self = this;
 
   var xhr = new XMLHttpRequest();
@@ -141,10 +140,11 @@ API.prototype.curl = function(method, url, data, resolve, reject) {
     xhr.open(method, url, true);
     xhr.withCredentials = true;
     xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.timeout = API_TIMEOUT; // time out after 5 seconds
 
     // Run extension hooks
     try {
-      self.ext.runHooks("curl.xhr", xhr);
+      self.ext.runHooks("api.curl.xhr", xhr);
     } catch (ex) {
       console.log("Error running API extension hooks: ", ex);
     }
@@ -154,8 +154,17 @@ API.prototype.curl = function(method, url, data, resolve, reject) {
         onload();
       }
     };
-  } catch (exception) {
-    (reject || console.log)(exception.message);
+    xhr.ontimeout = function () {
+      console.log("tries: ", retries);
+      if (retries >= API_RETRIES) {
+        (reject || console.log)("Request timed out too many times, aborting");
+        return;
+      }
+      self.curl(method, url, data, resolve, reject, ++retries);
+    };
+  } catch (ex) {
+    console.log("got exception: ", ex);
+    (reject || console.log)(ex.message);
   }
   xhr.send(data);
 };
@@ -321,7 +330,6 @@ API.prototype.preview = function(text) {
 
 module.exports = {
   API: API,
-  salt: salt,
   getLocation: getLocation,
   getEndpoint: getEndpoint,
 };

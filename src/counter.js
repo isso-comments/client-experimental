@@ -64,6 +64,9 @@ Counter.prototype.setCommentCounts = function() {
         }
       }
     }
+  },
+  function (err) {
+    console.log("Failed to fetch comment counts");
   });
 };
 

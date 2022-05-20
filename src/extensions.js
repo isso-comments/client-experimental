@@ -3,9 +3,20 @@
 var Extensions = function() {
   this.hooks = {};
   this.ALLOWED_HOOKS = [
-    'curl.xhr',
+    'api.curl.xhr',
   ];
 };
+
+/* Example:
+  function addAuthHeader(xhr) {xhr.setRequestHeader("Auth-Foo", "foo")};
+  [...]
+  window.Isso.Ext.hooks = {
+    "api.curl.xhr": [addAuthHeader, addBearerToken],
+    "postbox.pre-submit": [clearHiddenForm],
+    [...]
+  };
+  window.Isso.registerHooks();
+*/
 
 Extensions.prototype.registerHook = function(hookedEvent, hook) {
   var self = this;
@@ -22,8 +33,11 @@ Extensions.prototype.registerHook = function(hookedEvent, hook) {
 
 Extensions.prototype.registerHooks = function(hooks) {
   var self = this;
-  for (var hook in hooks) {
-    self.registerHook(hook, hooks[hook]);
+  // hooks is a dict of hook names to lists of functions
+  for (var hookName in hooks) {
+    for (var i = 0; i < hooks[hookName].length; i++) {
+      self.registerHook(hookName, hooks[hookName][i]);
+    }
   }
 }
 

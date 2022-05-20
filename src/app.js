@@ -141,14 +141,13 @@ App.prototype.insertFeed = function() {
 };
 
 App.prototype.fetchConfig = function() {
-  // promise.when??
   var self = this; // Preserve App object instance context
   self.api.config().then(
     function (rv) {
       self.mergeConfigs(rv);
     },
     function (err) {
-      console.log(err);
+      console.log("Fetching config failed");
     }
   );
 };
@@ -191,7 +190,7 @@ App.prototype.fetchComments = function() {
       self.scrollToHash();
     },
     function(err) {
-      console.log(err);
+      console.log("Failed to fetch comments from server");
     }
   );
 };
