@@ -68,6 +68,7 @@ test('registerExtensions with duplicate hook name succeeds', () => {
   fakeApp.registerExtensions();
   expect(fakeApp.ext.hooks["api.curl.xhr"][0]()).toBe("baz");
   expect(fakeApp.ext.hooks["api.curl.xhr"][1]()).toBe("oof");
+  expect(fakeApp.ext.hooks["api.curl.xhr"].length).toBe(2);
 });
 
 test('runHooks with duplicated function runs twice', () => {
