@@ -32,7 +32,7 @@ Functions, rely on endpoint:
 */
 
 var Q = require('lib/promise');
-var globals = require('globals');
+var offset = require('offset');
 
 var API_TIMEOUT = 50; // 5 seconds
 var API_RETRIES = 3; // 3 retries, then abort curl()
@@ -81,7 +81,7 @@ var getEndpoint = function() {
 // DOM dependent
 // Split into own function to allow mocking
 var _updateTimeOffset = function(date) {
-  globals.offset.update(new Date(date));
+  offset.update(new Date(date));
 };
 
 // DOM dependent

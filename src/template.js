@@ -37,10 +37,17 @@ var _datetime = function(date) {
     date = new Date(parseInt(date, 10) * 1000);
   }
 
+  // TBH, toISOString is probably what we want instead
+  // ISO 8601 = YYYY-MM-DDTHH:mm:ss.sssZ
+  // isoString:   2022-05-05T10:00:00.000Z
+  // constructed: 2022-05-05T10:00:00Z
+  //return date.toISOString();
   return [
     date.getUTCFullYear(),
-    utils.pad(date.getUTCMonth(), 2),
-    utils.pad(date.getUTCDay(), 2)
+    // getUTCMonth returns zero-based month!
+    utils.pad(date.getUTCMonth() + 1, 2),
+    // getUTCDay returns day of week, not month!
+    utils.pad(date.getUTCDate(), 2)
   ].join("-") + "T" + [
     utils.pad(date.getUTCHours(), 2),
     utils.pad(date.getUTCMinutes(), 2),

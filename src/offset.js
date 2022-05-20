@@ -14,6 +14,4 @@ Offset.prototype.localTime = function() {
 
 var offset = new Offset();
 
-module.exports = {
-  offset: offset,
-}
+module.exports = offset;

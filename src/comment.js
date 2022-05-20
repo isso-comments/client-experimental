@@ -29,7 +29,7 @@ Functions (dependent on config):
 
 var $ = require('lib/dom');
 var editorify = require('lib/editorify');
-var globals = require('globals');
+var offset = require('offset');
 var identicons = require('lib/identicons');
 var utils = require('utils');
 
@@ -131,7 +131,7 @@ Comment.prototype.insertComment = function(comment, scrollIntoView) {
 Comment.prototype.updateOffset = function(element, id, created) {
   var self = this; // Preserve Comment object instance context
   var time = $("#isso-" + id + " > .isso-text-wrapper .isso-permalink > time", element)
-  time.textContent = self.i18n.ago(globals.offset.localTime(),
+  time.textContent = self.i18n.ago(offset.localTime(),
       new Date(parseInt(created, 10) * 1000));
 };
 Comment.prototype.updateOffsetLoop = function(id, created) {
