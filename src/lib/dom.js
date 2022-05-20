@@ -125,6 +125,14 @@ function Element(node) {
         node.innerHTML = innerHTML;
       }
     },
+    "outerHTML": {
+      get: function() {
+        return node.outerHTML;
+      },
+      set: function(outerHTML) {
+        node.outerHTML = outerHTML;
+      }
+    },
     "value": {
       get: function() {
         return node.value;
