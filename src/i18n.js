@@ -182,7 +182,7 @@ I18n.prototype.translate = function(msgid) {
   // 4. Return "[?msg]"
   return self.config[msgid + '-text-' + self.lang] ||
     self.translations[msgid] ||
-    en[msgid] ||
+    catalogue['en'][msgid] ||
     "[?" + msgid + "]";
 };
 
