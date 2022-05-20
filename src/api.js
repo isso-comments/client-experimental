@@ -155,7 +155,6 @@ API.prototype.curl = function(method, url, data, resolve, reject, retries=0) {
       }
     };
     xhr.ontimeout = function () {
-      console.log("tries: ", retries);
       if (retries >= API_RETRIES) {
         (reject || console.log)("Request timed out too many times, aborting");
         return;
@@ -163,7 +162,6 @@ API.prototype.curl = function(method, url, data, resolve, reject, retries=0) {
       self.curl(method, url, data, resolve, reject, ++retries);
     };
   } catch (ex) {
-    console.log("got exception: ", ex);
     (reject || console.log)(ex.message);
   }
   xhr.send(data);
