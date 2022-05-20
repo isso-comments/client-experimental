@@ -24,6 +24,11 @@ Extensions.prototype.registerHook = function(hookedEvent, hook) {
     console.log("Extension hook '", hookedEvent, "' not allowed, skipping");
     return;
   }
+  // Need to use `typeof` instead of `hook instanceof Function` for Jest mocking
+  if (!(typeof hook === "function")) {
+    console.log("Extension hook for '", hookedEvent, "' not a function, skipping");
+    return;
+  }
   if (hookedEvent in self.hooks) {
     self.hooks[hookedEvent].push(hook);
   } else {
@@ -53,6 +58,7 @@ Extensions.prototype.runHooks = function(hookedEvent, val) {
   }
 }
 
-var extensions = new Extensions();
+//var extensions = new Extensions();
+//module.exports = extensions;
 
-module.exports = extensions;
+module.exports = Extensions;

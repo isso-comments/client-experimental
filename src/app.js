@@ -39,7 +39,7 @@ function sleep(delay) {
 var App = function() {
   var self = this; // Preserve App object instance context
 
-  self.ext = extensions;
+  self.ext = new extensions();
   self.registerExtensions();
 
   self.api = new api.API();
