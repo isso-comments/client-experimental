@@ -1,4 +1,10 @@
 'use strict';
+
+/* For DEBUG ONLY
+ * Various stuff that is only good for figuring out stuff about jest
+ * internals and mocking
+ */
+
 /*
 var appObj = null;
 function init() {
