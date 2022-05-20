@@ -16,7 +16,7 @@ var count = function() {
 
   this.i18n = new i18n.I18n();
   this.i18n.config = this.config;
-  this.i18n.setLangs();
+  this.i18n.initTranslations();
 
   var counter = new counter.Counter();
   counter.api = api;

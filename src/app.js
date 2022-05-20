@@ -53,7 +53,7 @@ var App = function() {
 
   self.i18n = new i18n.I18n();
   self.i18n.config = self.config;
-  self.i18n.setLangs();
+  self.i18n.initTranslations();
 
   self.counter = new counter.Counter();
   self.counter.api = self.api;

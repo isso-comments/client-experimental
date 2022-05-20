@@ -19,7 +19,7 @@ test('Create Postbox', () => {
 
   let i18n_ = new i18n.I18n();
   i18n_.config = conf;
-  i18n_.setLangs();
+  i18n_.initTranslations();
 
   let template_ = new template.Template();
   template_.templateVars["conf"] = conf;
