@@ -52,7 +52,7 @@ $ npm run watch
 Serve the generated experimental client files at `localhost:8000` (from
 this experimental client repo:
 ```console
-python3 -m http.server
+$ cd dist && python3 -m http.server
 ```
 
 ### Explanation, sort of
