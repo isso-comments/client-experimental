@@ -19,7 +19,7 @@ beforeEach(() => {
   issoApp = new app.App();
 });
 
-test('Fetch mocked config', () => {
+test.skip('Fetch mocked config', () => {
   let fakefetchConfig = jest.fn(() =>
     issoApp.mergeConfigs({config: {avatar: false}}),
   );
@@ -43,21 +43,23 @@ test('Render whole widget', () => {
     "parent": null,
   }
 
+  const fakeThen = jest.fn((onSuccess, onError) => onSuccess.call(issoApp, {replies: [comment]}));
   jest.spyOn(issoApp.api, 'fetch')
     .mockImplementation(() => {
       return {
-        then: (onSuccess, onError) => {
-          onSuccess.call(issoApp, {replies: [comment]});
-        },
+        then: fakeThen,
       };
     });
 
   let fakeDate = new Date('2022-05-05T11:00:00.000Z'); // comment date + 1h
   offset.update(fakeDate);
 
+  /*
   jest.spyOn(issoApp.configFetched, 'loaded')
     .mockImplementation(() => true);
+  */
 
+  /*
   jest.spyOn(issoApp, 'fetchConfig')
     .mockImplementation(() => {
       return {
@@ -66,12 +68,17 @@ test('Render whole widget', () => {
         }
       }
     });
+  */
 
   issoApp.initWidget.call(issoApp);
 
   expect(issoApp.config.avatar).toBeFalse;
 
+  expect(issoApp.configFetched.isReady()).toBeTrue;
+
   issoApp.fetchComments.call(issoApp);
+
+  expect(fakeThen).toHaveBeenCalledTimes(1);
 
   expect(issoApp.issoThread.innerHTML).toMatchSnapshot();
 });

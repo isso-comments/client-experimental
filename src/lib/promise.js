@@ -61,7 +61,7 @@ var waitFor = function() {
       listeners.push(listener);
     },
     reset: function() { isReady = false },
-    onLoaded: function() {
+    onReady: function() {
       isReady = true;
       for (var listener in listeners) {
         if (!listeners[listener]) {

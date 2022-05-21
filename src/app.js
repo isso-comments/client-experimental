@@ -22,7 +22,7 @@ var svg = require('svg');
 var template = require('template');
 var utils = require('utils');
 
-//var Q = require('lib/promise');
+var Q = require('lib/promise');
 
 // Helper for rendering comment area below postbox
 var commentHelper = require('comment');
@@ -62,28 +62,7 @@ var App = function() {
   self.template.templateVars["svg"] = svg;
 
   // Signals other components that config has been fetched from server
-  self.configFetched = (function() {
-    var listeners = [];
-    var loaded = false;
-    return {
-      loaded: function(){return loaded},
-      register: function(listener) {
-        listeners.push(listener);
-      },
-      reset: function() { loaded = false },
-      onLoaded: function() {
-        loaded = true;
-        for (var listener in listeners) {
-          if (!listeners[listener]) {
-            // Remove dead listeners
-            listeners.splice(listeners.indexOf(listener), 1);
-            continue;
-          }
-          listeners[listener]();
-        }
-      },
-    };
-  })();
+  self.configFetched = Q.waitFor();
 
   // Own DOM elements
   this.issoRoot = null;
@@ -131,7 +110,7 @@ App.prototype.initWidget = function() {
       self.issoThread.append(self.createPostbox(null));
       self.issoThread.append('<div id="isso-root"></div>');
 
-      self.configFetched.onLoaded();
+      self.configFetched.onReady();
     },
     function(err) {
       console.log("Error fetching config from server");
@@ -187,7 +166,7 @@ App.prototype.fetchConfig = function() {
 App.prototype.fetchComments = function() {
   var self = this; // Preserve App object instance context
 
-  if (!(self.configFetched.loaded())) {
+  if (!(self.configFetched.isReady())) {
     self.configFetched.register(self.fetchComments.bind(self));
     return;
   }
