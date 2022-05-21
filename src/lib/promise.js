@@ -25,7 +25,7 @@ Defer.prototype = {
   promise: Promise,
   resolve: function(rv) {
     this.promise.success.forEach(function(callback) {
-      window.setTimeout(function() {
+      setTimeout(function() {
         callback(rv);
       }, 0);
     });
@@ -33,7 +33,7 @@ Defer.prototype = {
 
   reject: function(error) {
     this.promise.errors.forEach(function(callback) {
-      window.setTimeout(function() {
+      setTimeout(function() {
         callback(error);
       }, 0);
     });
