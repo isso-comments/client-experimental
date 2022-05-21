@@ -5,10 +5,15 @@ var counter = require('counter');
 var domready = require('lib/ready');
 var i18n = require('i18n');
 
+var doc = require('lib/document');
+
 var count = function() {
-  this.api = new api.API();
-  this.api.location = api.getLocation();
-  this.api.endpoint = api.getEndpoint();
+  this.api = new api.API(
+    doc.getLocation(),
+    doc.getEndpoint(),
+    null,
+    { 'updateCookie': null, 'updateTimeOffset': null }
+  );
 
   this.config = new config.Config();
   this.config.init();

@@ -55,7 +55,7 @@ test('Render whole widget', () => {
   offset.update(fakeDate);
 
   /*
-  jest.spyOn(issoApp.configFetched, 'loaded')
+  jest.spyOn(issoApp.initDone, 'loaded')
     .mockImplementation(() => true);
   */
 
@@ -74,7 +74,7 @@ test('Render whole widget', () => {
 
   expect(issoApp.config.avatar).toBeFalse;
 
-  expect(issoApp.configFetched.isReady()).toBeTrue;
+  expect(issoApp.initDone.isReady()).toBeTrue;
 
   issoApp.fetchComments.call(issoApp);
 

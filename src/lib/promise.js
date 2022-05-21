@@ -58,7 +58,10 @@ var waitFor = function() {
   return {
     isReady: function(){return isReady},
     register: function(listener) {
-      listeners.push(listener);
+      // Ignore duplicate listeners
+      if (listeners.indexOf(listener) < 0) {
+        listeners.push(listener);
+      };
     },
     reset: function() { isReady = false },
     onReady: function() {

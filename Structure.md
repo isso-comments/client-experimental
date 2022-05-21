@@ -29,6 +29,7 @@ header
   use prototype funcs independently during testing)
 - Figure out performance issues and repainiting jank (how to profile?)
 - Further removing DOM dependence
+- Clean up usage of `this` (`self`) and figure out better ways to keep state
 - Make custom promise lib more testable (use drop-in fixture without setTimeout,
   find out more about setTimeout)
 - Figure out deep mocking: How deep does Jest mock? Also inside deps of deps?

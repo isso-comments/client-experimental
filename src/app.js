@@ -22,7 +22,10 @@ var svg = require('svg');
 var template = require('template');
 var utils = require('utils');
 
+// Not sure tracking state of these belongs in app.js?
 var Q = require('lib/promise');
+var doc = require('lib/document');
+var offset = require('offset');
 
 // Helper for rendering comment area below postbox
 var commentHelper = require('comment');
@@ -31,15 +34,24 @@ var postboxHelper = require('postbox');
 
 var extensions = require('extensions');
 
+// Dependent on offset module with global state
+var updateTimeOffset = function(date) {
+  // is `offset` instance available when run through listener?
+  offset.update(new Date(date));
+};
+
 var App = function() {
   var self = this; // Preserve App object instance context
 
   self.ext = new extensions();
   self.registerExtensions();
 
-  self.api = new api.API();
-  self.api.init();
-  self.api.ext = self.ext;
+  self.api = new api.API(
+    doc.getLocation(),
+    doc.getEndpoint(),
+    self.ext,
+    { 'updateCookie': doc.updateCookie, 'updateTimeOffset': updateTimeOffset }
+  );
 
   self._conf = new config.Config();
   self._conf.init();
@@ -61,13 +73,14 @@ var App = function() {
   self.template.templateVars["i18n"] = self.i18n;
   self.template.templateVars["svg"] = svg;
 
-  // Signals other components that config has been fetched from server
-  self.configFetched = Q.waitFor();
-
   // Own DOM elements
   this.issoRoot = null;
   this.issoThread = null;
   this.heading = null;
+
+  // Signals other components that config has been fetched from server
+  // and that init is done
+  self.initDone = Q.waitFor();
 };
 
 App.prototype.registerExtensions = function() {
@@ -82,43 +95,36 @@ App.prototype.registerExtensions = function() {
   }
 }
 
-App.prototype.initWidget = function(wait=false) {
+App.prototype.initWidget = function() {
   var self = this; // Preserve App object instance context
 
-  if (!wait) {
-    self.configFetched.reset();
-    self.configFetched.register(
-      function(){self.initWidget.call(self, true)}
-    );
-    self.api.config().then(
-      function(rv) {
-        self.mergeConfigs(rv);
-        self.configFetched.onReady();
-      },
-      function(err) {
-        console.log("Error fetching config from server");
+  self.initDone.reset();
+
+  self.api.config().then(
+    function(rv) {
+      self.mergeConfigs(rv);
+
+      self.issoThread = $('#isso-thread');
+      if (!self.issoThread) {
+        // Perhaps throw something here instead?
+        return console.log("abort, #isso-thread is missing");
       }
-    );
-    return;
-  }
+      self.heading = $.new("h4.isso-thread-heading");
+      self.issoThread.append(self.heading);
+      self.insertStyles();
+      self.counter.setCommentCounts();
+      self.insertFeed();
 
-  self.issoThread = $('#isso-thread');
-  self.heading = $.new("h4.isso-thread-heading");
-  self.issoThread.append(self.heading);
+      self.issoThread.append(self.createPostbox(null));
+      self.issoThread.append('<div id="isso-root"></div>');
 
-  self.insertStyles();
-
-  self.counter.setCommentCounts();
-
-  if (!self.issoThread) {
-    // Perhaps throw something here instead?
-    return console.log("abort, #isso-thread is missing");
-  }
-
-  self.insertFeed();
-
-  self.issoThread.append(self.createPostbox(null));
-  self.issoThread.append('<div id="isso-root"></div>');
+      // Fire registered listeners, e.g. pending fetchComments()
+      self.initDone.onReady();
+    },
+    function(err) {
+      console.log("Error fetching config from server");
+    }
+  );
 };
 
 App.prototype.insertStyles = function() {
@@ -169,8 +175,8 @@ App.prototype.fetchConfig = function() {
 App.prototype.fetchComments = function() {
   var self = this; // Preserve App object instance context
 
-  if (!(self.configFetched.isReady())) {
-    self.configFetched.register(self.fetchComments.bind(self));
+  if (!(self.initDone.isReady())) {
+    self.initDone.register(self.fetchComments.bind(self));
     return;
   }
 
@@ -181,7 +187,7 @@ App.prototype.fetchComments = function() {
   self.issoRoot = $('#isso-root');
   self.issoRoot.textContent = '';
 
-  var tid = self.issoThread.getAttribute("data-isso-id") || api.getLocation();
+  var tid = self.issoThread.getAttribute("data-isso-id") || doc.getLocation();
 
   self.api.fetch(tid, self.config["max-comments-top"],
                  self.config["max-comments-nested"]).then(
