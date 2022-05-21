@@ -200,9 +200,10 @@ Comment.prototype.toggleEdit = function(toggler, comment) {
     var textarea = $(".isso-textarea", self.text);
     if (! toggler.canceled && textarea !== null) {
       if (utils.text(textarea.innerHTML).length < 3) {
-          textarea.focus();
-          toggler.wait();
-          return;
+        // TODO remove focus instead of validation layer?
+        textarea.focus();
+        toggler.wait();
+        return;
       } else {
           self.api.modify(comment.id, {"text": utils.text(textarea.innerHTML)})
             .then(function(rv) {

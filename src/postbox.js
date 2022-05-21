@@ -56,7 +56,15 @@ var Postbox = function(parent, api, app, config, localStorage, template) {
   $(".isso-preview", self.element).on("click", self.edit.bind(self));
   $("[type=submit]", self.element).on("click", self.submit.bind(self));
 
-  editorify($(".isso-textarea", self.element));
+  var email = $("[name='email']", self.element)
+  email.on("focus", function() {email.classList.remove('isso-validation-error')});
+  var author = $("[name='author']", self.element);
+  author.on("focus", function() {author.classList.remove('isso-validation-error')});
+  var textarea = $(".isso-textarea", self.element);
+  textarea.on("focus", function() {textarea.classList.remove('isso-validation-error')});
+
+  //editorify($(".isso-textarea", self.element));
+  editorify(textarea);
 
   return self.element;
 };
@@ -133,11 +141,15 @@ Postbox.prototype.showErrors = function(errors) {
   for (var err in errors) {
     switch (errors[err]) {
       case ValidationError.EMAIL_MISSING:
-        $("[name=email]", self.element).classList.add('isso-validation-error');
+        console.log("EMAIL_MISSING:", errors[err]);
+        $("[name='email']", self.element).classList.add('isso-validation-error');
       case ValidationError.AUTHOR_MISSING:
-        $("[name=author]", self.element).classList.add('isso-validation-error');
+        console.log("AUTHOR_MISSING:", errors[err]);
+        $("[name='author']", self.element).classList.add('isso-validation-error');
       case ValidationError.TEXT_TOO_SHORT:
+        console.log("TEXT_TOO_SHORT:", errors[err]);
         $(".isso-textarea", self.element).classList.add('isso-validation-error');
+        console.log($(".isso-textarea", self.element));
       default:
         return null;
     }
