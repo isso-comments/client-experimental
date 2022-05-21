@@ -71,7 +71,7 @@ test('Create Postbox with reply notifications disabled by default', () => {
   issoThread.append(box);
 
   expect($('.isso-notification-section input[type="checkbox"]',
-           issoThread).checked).toBeFalse;
+           issoThread).checked()).toBeFalsy();
 });
 
 test('Create Postbox with reply notifications enabled by default', () => {
@@ -86,5 +86,5 @@ test('Create Postbox with reply notifications enabled by default', () => {
   issoThread.append(box);
 
   expect($('.isso-notification-section input[type="checkbox"]',
-           issoThread).checked).toBeTrue;
+           issoThread).checked).toBeTruthy();
 });
