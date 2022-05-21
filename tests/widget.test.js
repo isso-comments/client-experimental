@@ -10,6 +10,7 @@ const offset = require('offset');
 var issoApp = null;
 
 beforeEach(() => {
+  jest.clearAllMocks();
   document.body.innerHTML =
     '<div id=isso-thread></div>' +
     '<script src="http://isso.api/js/embed.min.js"'
@@ -31,10 +32,6 @@ test('Fetch mocked config', () => {
 
 test('Render whole widget', () => {
 
-  issoApp.initWidget();
-
-  expect(issoApp.config.avatar).toBe(true);
-
   let comment = {
     "id": 2,
     "created": 1651744800.0, // = 2022-05-05T10:00:00.000Z
@@ -50,7 +47,7 @@ test('Render whole widget', () => {
     .mockImplementation(() => {
       return {
         then: (onSuccess, onError) => {
-          onSuccess({replies: [comment]});
+          onSuccess.call(issoApp, {replies: [comment]});
         },
       };
     });
@@ -58,7 +55,23 @@ test('Render whole widget', () => {
   let fakeDate = new Date('2022-05-05T11:00:00.000Z'); // comment date + 1h
   offset.update(fakeDate);
 
-  issoApp.fetchComments();
+  jest.spyOn(issoApp.configFetched, 'loaded')
+    .mockImplementation(() => true);
+
+  jest.spyOn(issoApp, 'fetchConfig')
+    .mockImplementation(() => {
+      return {
+        then: (onSuccess, onError) => {
+          onSuccess.call(issoApp, {config: {avatar: false}});
+        }
+      }
+    });
+
+  issoApp.initWidget.call(issoApp);
+
+  expect(issoApp.config.avatar).toBeFalse;
+
+  issoApp.fetchComments.call(issoApp);
 
   expect(issoApp.issoThread.innerHTML).toMatchSnapshot();
 });

@@ -52,7 +52,31 @@ var defer = function() {
   return new Defer();
 };
 
+var waitFor = function() {
+  var listeners = [];
+  var isReady = false;
+  return {
+    isReady: function(){return isReady},
+    register: function(listener) {
+      listeners.push(listener);
+    },
+    reset: function() { isReady = false },
+    onLoaded: function() {
+      isReady = true;
+      for (var listener in listeners) {
+        if (!listeners[listener]) {
+          // Remove dead listeners
+          listeners.splice(listeners.indexOf(listener), 1);
+          continue;
+        }
+        listeners[listener]();
+      }
+    },
+  };
+};
+
 module.exports = {
   defer: defer,
   when: when,
+  waitFor: waitFor,
 };

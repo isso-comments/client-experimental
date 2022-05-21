@@ -22,19 +22,14 @@ var svg = require('svg');
 var template = require('template');
 var utils = require('utils');
 
+//var Q = require('lib/promise');
+
 // Helper for rendering comment area below postbox
 var commentHelper = require('comment');
 // Helper for rendering Postboxes
 var postboxHelper = require('postbox');
 
 var extensions = require('extensions');
-
-function sleep(delay) {
-  console.log("sleeping for ", delay)
-  var start = new Date().getTime();
-  while (new Date().getTime() < start + delay);
-  console.log("slept for ", delay)
-}
 
 var App = function() {
   var self = this; // Preserve App object instance context
@@ -66,6 +61,30 @@ var App = function() {
   self.template.templateVars["i18n"] = self.i18n;
   self.template.templateVars["svg"] = svg;
 
+  // Signals other components that config has been fetched from server
+  self.configFetched = (function() {
+    var listeners = [];
+    var loaded = false;
+    return {
+      loaded: function(){return loaded},
+      register: function(listener) {
+        listeners.push(listener);
+      },
+      reset: function() { loaded = false },
+      onLoaded: function() {
+        loaded = true;
+        for (var listener in listeners) {
+          if (!listeners[listener]) {
+            // Remove dead listeners
+            listeners.splice(listeners.indexOf(listener), 1);
+            continue;
+          }
+          listeners[listener]();
+        }
+      },
+    };
+  })();
+
   // Own DOM elements
   this.issoRoot = null;
   this.issoThread = null;
@@ -87,30 +106,37 @@ App.prototype.registerExtensions = function() {
 App.prototype.initWidget = function() {
   var self = this; // Preserve App object instance context
 
-  self.fetchConfig();
+  self.configFetched.reset();
 
-  self.issoThread = $('#isso-thread');
-  self.heading = $.new("h4.isso-thread-heading");
-  self.issoThread.append(self.heading);
+  //self.fetchConfig().then(
+  self.api.config().then(
+    function(rv) {
+      self.mergeConfigs(rv);
 
-  //sleep(300);
+      self.issoThread = $('#isso-thread');
+      self.heading = $.new("h4.isso-thread-heading");
+      self.issoThread.append(self.heading);
 
-  self.insertStyles();
+      self.insertStyles();
 
-  self.counter.setCommentCounts();
+      self.counter.setCommentCounts();
 
-  //sleep(300);
+      if (!self.issoThread) {
+        // Perhaps throw something here instead?
+        return console.log("abort, #isso-thread is missing");
+      }
 
-  if (!self.issoThread) {
-    // Perhaps throw something here instead?
-    return console.log("abort, #isso-thread is missing");
-  }
+      self.insertFeed();
 
-  self.insertFeed();
+      self.issoThread.append(self.createPostbox(null));
+      self.issoThread.append('<div id="isso-root"></div>');
 
-  self.issoThread.append(self.createPostbox(null));
-  //sleep(300);
-  self.issoThread.append('<div id="isso-root"></div>');
+      self.configFetched.onLoaded();
+    },
+    function(err) {
+      console.log("Error fetching config from server");
+    }
+  );
 };
 
 App.prototype.insertStyles = function() {
@@ -140,20 +166,31 @@ App.prototype.insertFeed = function() {
   }
 };
 
+/*
 App.prototype.fetchConfig = function() {
+  // This is just an extremely stupid and thin wrapper
   var self = this; // Preserve App object instance context
+  var deferred = Q.defer();
   self.api.config().then(
     function (rv) {
-      self.mergeConfigs(rv);
+      deferred.resolve(rv);
     },
     function (err) {
       console.log("Fetching config failed");
+      deferred.reject(rv);
     }
   );
+  return deferred.promise;
 };
+*/
 
 App.prototype.fetchComments = function() {
   var self = this; // Preserve App object instance context
+
+  if (!(self.configFetched.loaded())) {
+    self.configFetched.register(self.fetchComments.bind(self));
+    return;
+  }
 
   if (!$('#isso-root')) {
     // Perhaps throw something here instead?
@@ -224,6 +261,7 @@ App.prototype.mergeConfigs = function(rv) {
   // territory...
   // -> but calling initWidget() again will result in new configs fetched from server, so leave this out
   //Object.freeze(self.config);
+  return self.config;
 };
 
 App.prototype.createPostbox = function(parent) {

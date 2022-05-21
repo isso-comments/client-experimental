@@ -68,19 +68,19 @@ Postbox.prototype.validate = function() {
   if (utils.text($(".isso-textarea", self.element).innerHTML).length < 3 ||
     $(".isso-textarea", self.element).classList.contains("isso-placeholder"))
   {
-    $(".isso-textarea", self.element).focus();
+    //$(".isso-textarea", self.element).focus();
     reasons.push(ValidationError.TEXT_TOO_SHORT);
   }
   if (self.config["require-email"]
       && $("[name='email']", self.element).value.length <= 0)
   {
-    $("[name='email']", self.element).focus();
+    //$("[name='email']", self.element).focus();
     reasons.push(ValidationError.EMAIL_MISSING);
   }
   if (self.config["require-author"]
       && $("[name='author']", self.element).value.length <= 0)
   {
-    $("[name='author']", self.element).focus();
+    //$("[name='author']", self.element).focus();
     reasons.push(ValidationError.AUTHOR_MISSING);
   }
   return reasons;
@@ -127,9 +127,27 @@ Postbox.prototype.edit = function() {
   self.element.classList.remove('isso-preview-mode');
 };
 
+Postbox.prototype.showErrors = function(errors) {
+  var self = this; // Preserve Object context
+  console.log("showErrors: ", errors);
+  for (var err in errors) {
+    switch (errors[err]) {
+      case ValidationError.EMAIL_MISSING:
+        $("[name=email]", self.element).classList.add('isso-validation-error');
+      case ValidationError.AUTHOR_MISSING:
+        $("[name=author]", self.element).classList.add('isso-validation-error');
+      case ValidationError.TEXT_TOO_SHORT:
+        $(".isso-textarea", self.element).classList.add('isso-validation-error');
+      default:
+        return null;
+    }
+  }
+};
+
 Postbox.prototype.submit = function() {
   var self = this; // Preserve Object context
   self.edit(self);
+  self.showErrors(self.element.validate.call(self));
   if (self.element.validate.call(self).length) {
     // TODO: handle and display ValidationError
     return;

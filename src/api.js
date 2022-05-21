@@ -34,7 +34,7 @@ Functions, rely on endpoint:
 var Q = require('lib/promise');
 var offset = require('offset');
 
-var API_TIMEOUT = 50; // 5 seconds
+var API_TIMEOUT = 5000; // 5 seconds
 var API_RETRIES = 3; // 3 retries, then abort curl()
 
 // DOM dependent
