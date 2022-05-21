@@ -82,40 +82,43 @@ App.prototype.registerExtensions = function() {
   }
 }
 
-App.prototype.initWidget = function() {
+App.prototype.initWidget = function(wait=false) {
   var self = this; // Preserve App object instance context
 
-  self.configFetched.reset();
-
-  //self.fetchConfig().then(
-  self.api.config().then(
-    function(rv) {
-      self.mergeConfigs(rv);
-
-      self.issoThread = $('#isso-thread');
-      self.heading = $.new("h4.isso-thread-heading");
-      self.issoThread.append(self.heading);
-
-      self.insertStyles();
-
-      self.counter.setCommentCounts();
-
-      if (!self.issoThread) {
-        // Perhaps throw something here instead?
-        return console.log("abort, #isso-thread is missing");
+  if (!wait) {
+    self.configFetched.reset();
+    self.configFetched.register(
+      function(){self.initWidget.call(self, true)}
+    );
+    self.api.config().then(
+      function(rv) {
+        self.mergeConfigs(rv);
+        self.configFetched.onReady();
+      },
+      function(err) {
+        console.log("Error fetching config from server");
       }
+    );
+    return;
+  }
 
-      self.insertFeed();
+  self.issoThread = $('#isso-thread');
+  self.heading = $.new("h4.isso-thread-heading");
+  self.issoThread.append(self.heading);
 
-      self.issoThread.append(self.createPostbox(null));
-      self.issoThread.append('<div id="isso-root"></div>');
+  self.insertStyles();
 
-      self.configFetched.onReady();
-    },
-    function(err) {
-      console.log("Error fetching config from server");
-    }
-  );
+  self.counter.setCommentCounts();
+
+  if (!self.issoThread) {
+    // Perhaps throw something here instead?
+    return console.log("abort, #isso-thread is missing");
+  }
+
+  self.insertFeed();
+
+  self.issoThread.append(self.createPostbox(null));
+  self.issoThread.append('<div id="isso-root"></div>');
 };
 
 App.prototype.insertStyles = function() {

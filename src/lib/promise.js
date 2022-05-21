@@ -64,13 +64,15 @@ var waitFor = function() {
     onReady: function() {
       isReady = true;
       for (var listener in listeners) {
+        // Ignore dead listeners
         if (!listeners[listener]) {
-          // Remove dead listeners
-          listeners.splice(listeners.indexOf(listener), 1);
           continue;
         }
+        // Run listener
         listeners[listener]();
       }
+      // Clear listeners
+      listeners = [];
     },
   };
 };
