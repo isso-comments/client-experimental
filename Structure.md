@@ -46,6 +46,7 @@ header
     back there and not to the top-level postbox
   - show validation errors inline (for single input elements like author, email,
     website)
+  - show validation errors earlier: when focus gone, not just on submit
   - validation errors:
     - missing, but required
     - too short
