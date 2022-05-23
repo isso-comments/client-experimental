@@ -4,7 +4,10 @@ const config = {
   moduleNameMapper: {
     '\.svg$': '<rootDir>/tests/mocks/fileTransformer.js',
   },
-  globalSetup: '<rootDir>/tests/setup/global-setup.js'
+  globalSetup: '<rootDir>/tests/setup/global-setup.js',
+  collectCoverageFrom: [
+    '<rootDir>/src/**/*.js',
+  ],
 };
 
 module.exports = config;
