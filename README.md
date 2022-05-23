@@ -36,6 +36,33 @@ index 0b043e0..b731dcc 100644
     <!-- <script src="../js/count.dev.js"></script> -->
 ```
 
+Also, add a simple `/config` endpoint:
+```diff
+diff --git a/isso/views/comments.py b/isso/views/comments.py
+index 4304692..54396d1 100644
+--- a/isso/views/comments.py
++++ b/isso/views/comments.py
+@@ -107,6 +107,7 @@ class API(object):
+         ('dislike', ('POST', '/id/<int:id>/dislike')),
+         ('demo', ('GET', '/demo')),
+         ('preview', ('POST', '/preview')),
++        ('config', ('GET', '/config')),
+         ('login', ('POST', '/login')),
+         ('admin', ('GET', '/admin'))
+     ]
+@@ -1115,6 +1116,10 @@ class API(object):
+ 
+         return JSON({'text': self.isso.render(data["text"])}, 200)
+ 
++    def config(self, environment, request):
++        rv = {'config': self.public_conf}
++        return JSON(rv, 200)
++
+     def demo(self, env, req):
+         return redirect(
+             get_current_url(env, strip_querystring=True) + '/index.html'
+```
+
 Then spin up the server (from regular Isso repo):
 ```console
 $ virtualenv .venv
