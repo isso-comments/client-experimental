@@ -2,7 +2,7 @@
 var api = require('api');
 var config = require('config');
 var counter = require('counter');
-var domready = require('lib/ready');
+var domready = require('lib/domready');
 var i18n = require('i18n');
 
 var doc = require('lib/document');

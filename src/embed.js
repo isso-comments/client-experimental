@@ -1,7 +1,7 @@
 'use strict';
 
 var app = require('app');
-var domready = require('lib/ready');
+var domready = require('lib/domready');
 
 var issoApp = null;
 

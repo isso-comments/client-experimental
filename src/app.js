@@ -154,24 +154,6 @@ App.prototype.insertFeed = function() {
   }
 };
 
-/*
-App.prototype.fetchConfig = function() {
-  // This is just an extremely stupid and thin wrapper
-  var self = this; // Preserve App object instance context
-  var deferred = Q.defer();
-  self.api.config().then(
-    function (rv) {
-      deferred.resolve(rv);
-    },
-    function (err) {
-      console.log("Fetching config failed");
-      deferred.reject(rv);
-    }
-  );
-  return deferred.promise;
-};
-*/
-
 App.prototype.fetchComments = function() {
   var self = this; // Preserve App object instance context
 
@@ -245,9 +227,9 @@ App.prototype.mergeConfigs = function(rv) {
     }
     self.config[setting] = rv.config[setting]
   }
-  // Anything that changes the config from now on is getting us to undefined
-  // territory...
-  // -> but calling initWidget() again will result in new configs fetched from server, so leave this out
+  // Changing config again from now on is venturing into undefined territory...
+  // -> but calling initWidget() again will result in new configs fetched from server,
+  //    so don't freeze the obj
   //Object.freeze(self.config);
   return self.config;
 };
@@ -260,6 +242,7 @@ App.prototype.createPostbox = function(parent) {
 };
 
 // Comment object scaffold, does not contain any actual data yet
+// Also does not touch DOM yet
 App.prototype.createCommentObj = function() {
   var self = this; // Preserve App object instance context
   var _comment = new commentHelper.Comment(self.api, self, self.config,
@@ -267,6 +250,7 @@ App.prototype.createCommentObj = function() {
   return _comment;
 };
 
+// "Hydrate" and insert into DOM (either at #isso-root or below parent, if given)
 App.prototype.insertComment = function(comment, scrollIntoView) {
   var self = this; // Preserve App object instance context
   var _comment = self.createCommentObj();

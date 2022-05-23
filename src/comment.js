@@ -50,10 +50,12 @@ var Comment = function(api, app, config, i18n, template) {
   this.text = null;
 };
 
+// Returns cloned obj which already has handles for api, app, config etc.
 Comment.prototype.create = function() {
   return new Comment(this.api, this.app, this.config, this.i18n, this.template);
 }
 
+// "Hydrate" and insert into DOM (either at #isso-root or below parent, if given)
 Comment.prototype.insertComment = function(comment, scrollIntoView) {
   var self = this; // Preserve Comment object instance context
 
