@@ -4,7 +4,8 @@
   function addAuthHeader(xhr) {xhr.setRequestHeader("Auth-Foo", "foo")};
   [...]
   window.Isso.Ext.hooks = {
-    "api.curl.xhr": [addAuthHeader, addBearerToken],
+    "api.curl.pre": [addAuthHeader, addBearerToken],
+    "api.curl.onload": [addAuthHeader, addBearerToken],
     "postbox.pre-submit": [clearHiddenForm],
     [...]
   };
@@ -14,7 +15,8 @@
 var Extensions = function() {
   this.hooks = {};
   this.ALLOWED_HOOKS = [
-    'api.curl.xhr',
+    'api.curl.pre',
+    'api.curl.onload',
   ];
 };
 

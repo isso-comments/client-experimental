@@ -58,6 +58,13 @@ API.prototype.curl = function(method, url, data, resolve, reject, retries=0) {
 
   var xhr = new XMLHttpRequest();
   function onload() {
+    // Run extension hooks
+    try {
+      self.ext.runHooks("api.curl.onload", xhr);
+    } catch (ex) {
+      console.log("Error running API extension hooks: ", ex);
+    }
+
     var date = xhr.getResponseHeader("Date");
     if (date !== null) {
       self.listeners.updateTimeOffset(new Date(date));
@@ -83,7 +90,7 @@ API.prototype.curl = function(method, url, data, resolve, reject, retries=0) {
 
     // Run extension hooks
     try {
-      self.ext.runHooks("api.curl.xhr", xhr);
+      self.ext.runHooks("api.curl.pre", xhr);
     } catch (ex) {
       console.log("Error running API extension hooks: ", ex);
     }

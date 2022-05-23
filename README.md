@@ -150,7 +150,7 @@ var AuthExtension = function() {
     xhr.setRequestHeader(authHeader[0], authHeader[1]);
   };
   this.hooks = {
-    "api.curl.xhr": [addAuthHeader],
+    "api.curl.pre": [addAuthHeader],
   };
 };
 
