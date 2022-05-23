@@ -8,8 +8,7 @@ var utils = require('utils');
 
 var count = function() {
   this.api = new api.API(
-    utils.getLocation(),
-    utils.getEndpoint(),
+    utils.endpoint(),
     null,
     { 'updateCookie': null, 'updateTimeOffset': null }
   );

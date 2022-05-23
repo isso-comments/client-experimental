@@ -86,3 +86,14 @@ test.skip('fake timers and click callbacks', () => {
 
   expect(foo.runfoo).toHaveBeenCalledTimes(2);
 });
+
+test.skip('missing DOM element', () => {
+  const $ = require('lib/dom');
+  document.body.innerHTML =
+    '<div id=isso-thread></div>' +
+    '<script src="http://isso.api/js/embed.min.js"'
+          + 'data-isso="/"'
+          + 'data-isso-id="1"></script>';
+  let issoRoot = $('#isso-root');
+  expect(issoRoot).toBe(null
+});

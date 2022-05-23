@@ -173,7 +173,7 @@ Postbox.prototype.submit = function() {
   self.localStorage.setItem("isso-email", JSON.stringify(email));
   self.localStorage.setItem("isso-website", JSON.stringify(website));
 
-  var tid = $("#isso-thread").getAttribute("data-isso-id") || null;
+  var tid = utils.threadId();
   var title = $("#isso-thread").getAttribute("data-title") || null;
   var text = utils.text($(".isso-textarea", self.element).innerHTML);
 

@@ -33,15 +33,14 @@ var offset = require('offset');
 var identicons = require('lib/identicons');
 var utils = require('utils');
 
-var COOKIE_REFRESH_TIMEOUT = 15 * 1000; // 15 seconds
-var AGO_TIMEOUT = 60*1000;
-
-var Comment = function(api, app, config, i18n, template) {
+var Comment = function(api, app, config, i18n, template, thread) {
   this.api = api;
   this.app = app;
   this.config = config;
   this.i18n = i18n;
   this.template = template;
+
+  this.thread = thread;
 
   // Own DOM elements
   this.element = null;
@@ -52,7 +51,7 @@ var Comment = function(api, app, config, i18n, template) {
 
 // Returns cloned obj which already has handles for api, app, config etc.
 Comment.prototype.create = function() {
-  return new Comment(this.api, this.app, this.config, this.i18n, this.template);
+  return new Comment(this.api, this.app, this.config, this.i18n, this.template, this.thread);
 }
 
 // "Hydrate" and insert into DOM (either at #isso-root or below parent, if given)
@@ -105,7 +104,7 @@ Comment.prototype.insertComment = function(comment, scrollIntoView) {
   );
 
   if(comment.hasOwnProperty('replies')) {
-    self.insertReplies(comment);
+    self.app.insertReplies(comment);
   }
 
   if (self.config["vote"]) {
@@ -115,32 +114,38 @@ Comment.prototype.insertComment = function(comment, scrollIntoView) {
     self.updateVotes(comment.likes - comment.dislikes);
   }
 
-  // Beware: Following statements all use setTimeout()!
-
   // Update calculated offset to comment creation every 60 seconds
   self.updateOffsetLoop(comment.id, comment.created);
 
   // Remove edit and delete buttons when cookie is expired
-  self.checkIneditableLoop(comment, "a.isso-edit");
-  self.checkIneditableLoop(comment, "a.isso-delete");
+  self.editingAvailableLoop(comment, "a.isso-edit");
+  self.editingAvailableLoop(comment, "a.isso-delete");
   // Allow replying to self if a) reply-to-self enabled or b) cookie expired
-  if (! self.config["reply-to-self"] && utils.getCookie("isso-" + comment.id)) {
+  if (! self.config["reply-to-self"] && utils.cookie.get("isso-" + comment.id)) {
     var reply = $("a.isso-reply", self.footer).detach();
-    self.showDirectReplyDelayed(reply, comment);
+    self.replyToSelfAvailable(reply, comment);
   }
 };
 
+// Update calculated offset to comment creation every 60 seconds
 Comment.prototype.updateOffset = function(element, id, created) {
   var self = this; // Preserve Comment object instance context
   var time = $("#isso-" + id + " > .isso-text-wrapper .isso-permalink > time", element)
+  if (!time) {
+    // Element has vanished, no need to keep updating it
+    return false;
+  }
   time.textContent = self.i18n.ago(offset.localTime(),
       new Date(parseInt(created, 10) * 1000));
+  return true;
 };
 Comment.prototype.updateOffsetLoop = function(id, created) {
   var self = this; // Preserve Comment object instance context
-  self.updateOffset(self.element, id, created);
-  // TODO Create only one (global) timer, not per-comment
-  setTimeout(function() {self.updateOffsetLoop(id, created)}, AGO_TIMEOUT);
+  if (self.updateOffset(self.element, id, created)) {
+    self.app.loop.register(function() {
+      self.updateOffsetLoop(id, created);
+    });
+  }
 };
 
 // On clicking reply/close, insert/remove ("toggle") Postbox below comment
@@ -257,10 +262,10 @@ Comment.prototype.toggleDelete = function(toggler, comment) {
   }
 };
 
-// Remove edit and delete buttons when cookie is gone
-Comment.prototype.checkIneditable = function (comment, button) {
+// Remove edit and delete buttons when cookie is expired
+Comment.prototype.editingAvailable = function (comment, button) {
   var self = this; // Preserve Comment object instance context
-  if (! utils.getCookie("isso-" + comment.id)) {
+  if (! utils.cookie.get("isso-" + comment.id)) {
     if ($(button, self.footer) !== null) {
       $(button, self.footer).remove();
       return true;
@@ -269,25 +274,22 @@ Comment.prototype.checkIneditable = function (comment, button) {
   return false;
 };
 // Remove edit and delete buttons when cookie is expired
-Comment.prototype.checkIneditableLoop = function(comment, button) {
+Comment.prototype.editingAvailableLoop = function(comment, button) {
   var self = this; // Preserve Comment object instance context
-  if (!self.checkIneditable(comment, button)) {
-    // TODO Create only one (global) timer, not per-comment
-    setTimeout(
-      function() { self.checkIneditableLoop(comment, button); },
-      COOKIE_REFRESH_TIMEOUT
-    );
-  };
+  if (!self.editingAvailable(comment, button)) {
+    self.app.fastLoop.register(function() {
+      self.editingAvailableLoop(comment, button);
+    });
+  }
 };
 
 // Show direct reply to own comment when cookie is max aged
-Comment.prototype.showDirectReplyDelayed = function(reply, comment) {
+Comment.prototype.replyToSelfAvailable = function(reply, comment) {
   var self = this; // Preserve Comment object instance context
-  if (utils.getCookie("isso-" + comment.id)) {
-    setTimeout(
-      function() { self.showDirectReplyDelayed(reply, comment); },
-      COOKIE_REFRESH_TIMEOUT
-    );
+  if (utils.cookie.get("isso-" + comment.id)) {
+    self.app.fastLoop.register(function() {
+      self.replyToSelfAvailable(reply, comment);
+    });
   } else {
     self.footer.append(reply);
   }
@@ -332,71 +334,6 @@ Comment.prototype.downvote = function() {
   self.api.dislike(comment.id).then(function (rv) {
     self.updateVotes(rv.likes - rv.dislikes);
   });
-};
-
-Comment.prototype.insertReplies = function(comment) {
-  var self = this; // Preserve Comment object instance context
-  var lastCreated = 0;
-  comment.replies.forEach(function(replyObject) {
-    var commentObj = self.create();
-    commentObj.insertComment(replyObject, false);
-    if(replyObject.created > lastCreated) {
-      lastCreated = replyObject.created;
-    }
-  });
-  if(comment.hidden_replies > 0) {
-    self.insertLoader(comment, lastCreated);
-  }
-};
-
-
-
-Comment.prototype.insertLoader = function(comment, lastCreated) {
-  var self = this; // Preserve Comment object instance context
-  var entrypoint;
-  if (comment.id === null) {
-    entrypoint = $("#isso-root");
-    comment.name = 'null';
-  } else {
-    entrypoint = $("#isso-" + comment.id + " > .isso-follow-up");
-    comment.name = comment.id;
-  }
-  self.element = $.htmlify(self.template.render("comment-loader", {"comment": comment}));
-
-  entrypoint.append(self.element);
-
-  $("a.isso-load-hidden", self.element).on("click", self.loadHidden);
-};
-
-Comment.prototype.loadHidden = function() {
-  var self = this; // Preserve Comment object instance context
-
-  self.element.remove();
-
-  var tid = $("#isso-thread").getAttribute("data-isso-id") || null;
-  self.api.fetch(tid, self.config["reveal-on-click"],
-      self.config["max-comments-nested"], comment.id, lastCreated).then(
-    function(rv) {
-      if (rv.total_replies === 0) {
-          return;
-      }
-
-      var lastCreated = 0;
-      rv.replies.forEach(function(replyObject) {
-        var commentObj = self.create();
-        commentObj.insertComment(replyObject, false);
-        if(commentObject.created > lastCreated) {
-          lastCreated = replyObject.created;
-        }
-      });
-
-      if(rv.hidden_replies > 0) {
-        self.insertLoader(rv, lastCreated);
-      }
-    },
-    function(err) {
-      console.log(err);
-    });
 };
 
 module.exports = {

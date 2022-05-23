@@ -24,7 +24,8 @@ var template = require('template');
 var utils = require('utils');
 
 // Not sure tracking state of these belongs in app.js?
-var events = require('events');
+//var events = require('events');
+var event = require('event');
 var offset = require('offset');
 
 // Helper for rendering comment area below postbox
@@ -33,6 +34,7 @@ var commentHelper = require('comment');
 var postboxHelper = require('postbox');
 
 var AGO_TIMEOUT = 60*1000; // 60 seconds
+var COOKIE_REFRESH_TIMEOUT = 15 * 1000; // 15 seconds
 
 // Dependent on offset module with global state
 var updateTimeOffset = function(date) {
@@ -49,10 +51,9 @@ var App = function() {
   self.registerExtensions();
 
   self.api = new api.API(
-    utils.getLocation(),
-    utils.getEndpoint(),
+    utils.endpoint(),
     self.ext,
-    { 'updateCookie': utils.updateCookie, 'updateTimeOffset': updateTimeOffset }
+    { 'updateCookie': utils.cookie.set, 'updateTimeOffset': updateTimeOffset }
   );
 
   self._conf = new config.Config();
@@ -83,9 +84,10 @@ var App = function() {
   // Signals other components that config has been fetched from server
   // and that init is done
   // Do we need `new` here? I think calling the func always returns a new obj, no?
-  self.initDone = events.waitFor();
+  self.initDone = event.waitFor();
 
-  //self.initDone = events.loop(60);
+  self.fastLoop = event.loop(COOKIE_REFRESH_TIMEOUT); // 15 seconds
+  self.loop = event.loop(AGO_TIMEOUT); // 60 seconds
 };
 
 App.prototype.registerExtensions = function() {
@@ -102,6 +104,18 @@ App.prototype.registerExtensions = function() {
 
 App.prototype.initWidget = function() {
   var self = this; // Preserve App object instance context
+
+  console.log("starting loops");
+  self.loop.start();
+  self.fastLoop.start();
+
+  /*
+  console.log("registering for loop");
+  var loopy = function(i) {
+    console.log("loop!", i);
+    self.loop.register(function(){loopy(i)});
+  }
+  */
 
   self.initDone.reset();
 
@@ -152,69 +166,10 @@ App.prototype.insertFeed = function() {
     var feedLink = $.new('a', self.i18n.translate('atom-feed'));
     var feedLinkWrapper = $.new('span.isso-feedlink');
     // What if data-isso-id not set? Fetch from server?
-    var tid = self.issoThread.getAttribute("data-isso-id");
+    var tid = utils.threadId();
     feedLink.href = self.api.feed(tid);
     feedLinkWrapper.appendChild(feedLink);
     self.issoThread.append(feedLinkWrapper);
-  }
-};
-
-App.prototype.fetchComments = function() {
-  var self = this; // Preserve App object instance context
-
-  if (!(self.initDone.isReady())) {
-    self.initDone.register(self.fetchComments.bind(self));
-    return;
-  }
-
-  if (!$('#isso-root')) {
-    // Perhaps throw something here instead?
-    return console.log("abort, #isso-root is missing");
-  }
-  self.issoRoot = $('#isso-root');
-  self.issoRoot.textContent = '';
-
-  var tid = self.issoThread.getAttribute("data-isso-id") || utils.getLocation();
-
-  self.api.fetch(tid, self.config["max-comments-top"],
-                 self.config["max-comments-nested"]).then(
-    function (rv) {
-      if (rv.total_replies === 0) {
-        self.heading.textContent = self.i18n.translate("no-comments");
-        return;
-      }
-
-      var lastCreated = 0;
-      var count = rv.total_replies;
-      rv.replies.forEach(function(comment) {
-        self.insertComment(comment, false);
-        if (comment.created > lastCreated) {
-          lastCreated = comment.created;
-        }
-        count = count + comment.total_replies;
-      });
-      self.heading.textContent = self.i18n.pluralize("num-comments", count);
-
-      if (rv.hidden_replies > 0) {
-        self.createCommentObj().insertLoader(rv, lastcreated);
-      }
-
-      self.scrollToHash();
-    },
-    function(err) {
-      console.log("Failed to fetch comments from server");
-    }
-  );
-};
-
-App.prototype.scrollToHash = function() {
-  if (window.location.hash.length > 0 &&
-      window.location.hash.match("^#isso-[0-9]+$")) {
-    try {
-      $(window.location.hash).scrollIntoView();
-    } catch (ex) {
-      // No elements with #hash, meh
-    };
   }
 };
 
@@ -239,29 +194,136 @@ App.prototype.mergeConfigs = function(rv) {
   return self.config;
 };
 
+App.prototype.scrollToHash = function() {
+  if (window.location.hash.length > 0 &&
+      window.location.hash.match("^#isso-[0-9]+$")) {
+    try {
+      $(window.location.hash).scrollIntoView();
+    } catch (ex) {
+      // No elements with #hash, meh
+    };
+  }
+};
+
+App.prototype.insertReplies = function(comment) {
+  var self = this; // Preserve App object instance context
+  var lastCreated = 0;
+  var count = comment.total_replies;
+  comment.replies.forEach(function(replyObject) {
+    self.insertComment(replyObject, true);
+    if(replyObject.created > lastCreated) {
+      lastCreated = replyObject.created;
+    }
+    count = count + replyObject.total_replies;
+  });
+  if(comment.hidden_replies > 0) {
+    self.insertLoader(comment, lastCreated);
+  }
+  return count;
+};
+
+App.prototype.fetchComments = function() {
+  var self = this; // Preserve App object instance context
+
+  // If config not yet fetched, wait for it
+  if (!(self.initDone.isReady())) {
+    self.initDone.register(self.fetchComments.bind(self));
+    return;
+  }
+
+  self.issoRoot = $('#isso-root');
+  if (!self.issoRoot) {
+    // Perhaps throw something here instead?
+    return console.log("abort, #isso-root is missing");
+  }
+  // should we also clear `.value` here? clean slate after re-init?
+  self.issoRoot.textContent = '';
+
+  var tid = utils.threadId();
+  self.api.fetch(tid, self.config["max-comments-top"],
+                 self.config["max-comments-nested"]).then(
+    function (rv) {
+
+      var count = self.insertReplies(rv);
+
+      if (count === 0) {
+        self.heading.textContent = self.i18n.translate("no-comments");
+        return;
+      }
+
+      // TODO this count should be handled differently
+      // We already hit the /count endpoint setCommentCounts(), so re-use it
+      self.heading.textContent = self.i18n.pluralize("num-comments", count);
+
+      self.scrollToHash();
+    },
+    function(err) {
+      console.log("Failed to fetch comments from server");
+    }
+  );
+};
+
+// Insert a "X Hidden" element that loads more comments on clicking
+App.prototype.insertLoader = function(comment, lastCreated) {
+  var self = this; // Preserve App object instance context
+  var entrypoint;
+  if (comment.id === null) {
+    entrypoint = $("#isso-root");
+    comment.name = 'null';
+  } else {
+    entrypoint = $("#isso-" + comment.id + " > .isso-follow-up");
+    comment.name = comment.id;
+  }
+
+  var loader = $.htmlify(self.template.render("comment-loader", {"comment": comment}));
+  entrypoint.append(loader);
+  $("a.isso-load-hidden", self.loader).on("click", function() {
+    self.loadHidden(loader);
+  });
+};
+
+// Action when clicking on "X Hidden" to load more
+App.prototype.loadHidden = function(loader) {
+  var self = this; // Preserve App object instance context
+
+  loader.remove();
+
+  var tid = utils.threadId();
+  self.api.fetch(tid, self.config["reveal-on-click"],
+      self.config["max-comments-nested"], comment.id, lastCreated).then(
+    function(rv) {
+      if (rv.total_replies === 0) {
+          return;
+      }
+      self.insertReplies(comment);
+    },
+    function(err) {
+      console.log(err);
+    });
+};
+
 App.prototype.createPostbox = function(parent) {
   var self = this; // Preserve App object instance context
-  var _postbox = new postboxHelper.Postbox(parent, self.api, self, self.config,
+  return new postboxHelper.Postbox(parent, self.api, self, self.config,
       self.localStorage, self.template);
-  return _postbox;
 };
 
 // Comment object scaffold, does not contain any actual data yet
 // Also does not touch DOM yet
 App.prototype.createCommentObj = function() {
   var self = this; // Preserve App object instance context
-  var _comment = new commentHelper.Comment(self.api, self, self.config,
-      self.i18n, self.template);
-  return _comment;
+  return new commentHelper.Comment(self.api, self, self.config,
+      self.i18n, self.template, self.thread);
 };
 
 // "Hydrate" and insert into DOM (either at #isso-root or below parent, if given)
 App.prototype.insertComment = function(comment, scrollIntoView) {
   var self = this; // Preserve App object instance context
-  var _comment = self.createCommentObj();
-  _comment.insertComment(comment, scrollIntoView);
+  var comment_ = self.createCommentObj();
+  comment_.insertComment(comment, scrollIntoView);
 };
 
 module.exports = {
   App: App,
+  updateTimeOffset: updateTimeOffset,
 };

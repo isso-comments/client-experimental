@@ -111,7 +111,7 @@ var localStorageImpl = function() {
 };
 
 // DOM dependent
-var getEndpoint = function() {
+var endpoint = function() {
   var js = document.getElementsByTagName("script");
   var url;
 
@@ -146,30 +146,41 @@ var getEndpoint = function() {
 };
 
 // DOM dependent
-var getLocation = function() {
+// In the future, might return full URL, not just path component
+var location = function() {
   return window.location.pathname;
 };
 
-// DOM dependent
-// return `cookie` string if set (e.g. `isso-1=foo`)
-var getCookie = function(cookie) {
-  return (document.cookie.match('(^|; )' + cookie + '=([^;]*)') || 0)[2];
+var threadId = function() {
+  var thread = document.getElementById('isso-thread');
+  if (!thread) {
+    //console.log("abort, #isso-thread is missing");
+    return null;
+  }
+  return thread.getAttribute("data-isso-id") || location();
 };
 
 // DOM dependent
-// Set whole cookie based on X-Set-Cookie response header
-var updateCookie = function(cookie) {
-  document.cookie = cookie;
-};
+var cookie = (function() {
+  return {
+    // return `cookie` string if set (e.g. `isso-1=foo`)
+    get: function (cookie) {
+      return (document.cookie.match('(^|; )' + cookie + '=([^;]*)') || 0)[2];
+    },
+    set: function(cookie) {
+      document.cookie = cookie;
+    },
+  };
+})();
 
 module.exports = {
   detext: detext,
-  getCookie: getCookie,
-  getEndpoint: getEndpoint,
-  getLocation: getLocation,
+  cookie: cookie,
+  endpoint: endpoint,
+  location: location,
   localStorageImpl: localStorageImpl,
   normalizeBCP47: normalizeBCP47,
   pad: pad,
   text: text,
-  updateCookie: updateCookie,
+  threadId: threadId,
 };

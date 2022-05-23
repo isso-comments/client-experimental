@@ -1,6 +1,12 @@
 'use strict';
 
-/* Module that provides listener-based functionality */
+/*
+ * Module that provides listener-based functionality
+ *
+ * Note: Cannot be called "events" or it will clash with node bulitin ones
+ * Might also be called "loop"? "looper"?
+ * */
+
 
 // Check if something is ready, and if not, register self as listener to be
 // triggered once it is ready
@@ -37,36 +43,37 @@ var waitFor = function() {
 // Listeners need to re-register themselves upon every tick completion so
 // that dead listeners can be sorted out
 var loop = function(interval) {
-  //var interval = interval;
-  var listeners = [];
+  var next = [];
+  var current = [];
   var processTick = function() {
-    for (var listener in listeners) {
+    for (var listener in next) {
+      current.push(next[listener]);
+    }
+    next = [];
+    for (var listener in current) {
       // Ignore dead listeners
-      if (!listeners[listener]) {
+      if (!current[listener]) {
         continue;
       }
-      // Run listener
-      listeners[listener]();
+      // Run listener, listener is expected to re-register itself
+      current[listener]();
     }
-    // Clear listeners
-    listeners = [];
+    current = [];
     // (Re-)arm timeout
     setTimeout(processTick, interval);
-    //setTimeout(processTick.bind(this), interval);
-  }
+  };
   return {
     // note: listener needs to be self-bound with .bind(app, comment...)!
     register: function(listener) {
       // Ignore duplicate listeners
-      if (listeners.indexOf(listener) < 0) {
-        listeners.push(listener);
+      if (next.indexOf(listener) < 0) {
+        next.push(listener);
       };
     },
-    start: function() {
-      setTimeout(processTick, interval);
-    },
-  }
-}
+    start: processTick,
+    clear: function() { next = []; },
+  };
+};
 
 module.exports = {
   waitFor: waitFor,

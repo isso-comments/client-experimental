@@ -62,6 +62,13 @@ header
   position mapping to urls)
 - Create a command + endpoint on server for dropping and re-initializing db
   (guarded by DEBUG flag in conf or env?)
+- Using max-age or expires for cookies instead of polling -> would require to
+  keep track of those as expiration is not available through standard JS,
+  CookieStore API to retrieve info not widely available, and keeping track
+  locally would require localstorage or to modify cookie to store its own
+  expiration somehow... maybe server can figure out expiration and sign it
+- Only have one place for figuring out thread id instead of doing
+  `getAttribute('data-isso-id') || getLocation()` all the time
 
 
 ### Splitting init and fetchComments

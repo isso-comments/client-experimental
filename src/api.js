@@ -7,8 +7,6 @@ Uses:
   -> stateful
 
 One-time setup:
-- location
-  -> DOM dependent
 - endpoint
   -> DOM dependent
 
@@ -49,8 +47,7 @@ var _qs = function(params) {
 };
 
 
-var API = function(location, endpoint, ext, listeners) {
-  this.location = location;
+var API = function(endpoint, ext, listeners) {
   this.endpoint = endpoint;
   this.ext = ext;
   this.listeners = listeners;
@@ -112,7 +109,7 @@ API.prototype.curl = function(method, url, data, resolve, reject, retries=0) {
 API.prototype.create = function(tid, data) {
   var self = this;
   var deferred = Q.defer();
-  self.curl("POST", self.endpoint + "/new?" + _qs({uri: tid || self.location}), JSON.stringify(data),
+  self.curl("POST", self.endpoint + "/new?" + _qs({uri: tid}), JSON.stringify(data),
     function (rv) {
       if (rv.status === 201 || rv.status === 202) {
         deferred.resolve(JSON.parse(rv.body));
@@ -174,7 +171,7 @@ API.prototype.fetch = function(tid, limit, nested_limit, parent, lastcreated) {
   if (typeof(nested_limit) === 'undefined') { nested_limit = "inf"; }
   if (typeof(parent) === 'undefined') { parent = null; }
 
-  var query_dict = {uri: tid || self.location, after: lastcreated, parent: parent};
+  var query_dict = {uri: tid, after: lastcreated, parent: parent};
 
   if(limit !== "inf") {
     query_dict['limit'] = limit;
@@ -250,7 +247,7 @@ API.prototype.dislike = function(id) {
 };
 
 API.prototype.feed = function(tid) {
-  return this.endpoint + "/feed?" + _qs({uri: tid || location()});
+  return this.endpoint + "/feed?" + _qs({uri: tid});
 };
 
 API.prototype.preview = function(text) {

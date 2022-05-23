@@ -38,7 +38,7 @@ var Counter = function() {
 
 // DOM dependent
 // Split into own function to allow mocking
-Counter.prototype._setCounter = function(el, num) {
+Counter.prototype.setCounter = function(el, num) {
   var self = this; // Preserve Counter object instance context
   el.textContent = self.i18n.pluralize("num-comments", num);
 };
@@ -60,7 +60,7 @@ Counter.prototype.setCommentCounts = function() {
       if (objs.hasOwnProperty(key)) {
         var index = urls.indexOf(key);
         for (var i = 0; i < objs[key].length; i++) {
-          self._setCounter(objs[key][i], rv[index]);
+          self.setCounter(objs[key][i], rv[index]);
         }
       }
     }
