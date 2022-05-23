@@ -14,7 +14,7 @@ const mockExtract = jest.fn(() => []);
 var issoApp = null;
 
 beforeEach(() => {
-  jest.clearAllMocks();
+  jest.restoreAllMocks();
   jest.mock('counter', () => {
     const originalModule = jest.requireActual('counter');
     return {

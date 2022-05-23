@@ -1,8 +1,8 @@
 // Example response from http://localhost:8080/?uri=%2Fdemo%2Findex.html&nested_limit=5
 module.exports = {
   "id": null,
-  "total_replies": 2,
-  "hidden_replies": 0,
+  "total_replies": 4,
+  "hidden_replies": 2,
   "replies": [
     {
       "id": 1,
@@ -17,6 +17,7 @@ module.exports = {
       "dislikes": 0,
       "notification": 0,
       "hash": "1548cf654b4d",
+      "gravatar_image": "https://www.gravatar.com/avatar/4eec8ecba9d91f00de594fa5267d1c88?d=identicon&s=55",
       "total_replies": 2,
       "hidden_replies": 0,
       "replies": [
@@ -32,7 +33,8 @@ module.exports = {
           "likes": 1,
           "dislikes": 0,
           "notification": 0,
-          "hash": "8c2488ea3011"
+          "hash": "8c2488ea3011",
+          "gravatar_image": "https://www.gravatar.com/avatar/d41d8cd98f00b204e9800998ecf8427e?d=identicon&s=55",
         },
         {
           "id": 4,
@@ -46,7 +48,8 @@ module.exports = {
           "likes": 3,
           "dislikes": 0,
           "notification": 0,
-          "hash": "0c7d4cd57a0f"
+          "hash": "0c7d4cd57a0f",
+          "gravatar_image": "https://www.gravatar.com/avatar/61409aa1fd47d4a5332de23cbf59a36f?d=identicon&s=55",
         }
       ]
     },
@@ -63,6 +66,7 @@ module.exports = {
       "dislikes": 0,
       "notification": 0,
       "hash": "6688cdc5cb0b",
+      "gravatar_image": "https://www.gravatar.com/avatar/d9e9aa0dc2bae9810b46775dd4341591?d=identicon&s=55",
       "total_replies": 0,
       "hidden_replies": 0,
       "replies": []
