@@ -1,4 +1,5 @@
 node_modules/
+coverage/
 *.dev.js
 *.min.js
 *.map
