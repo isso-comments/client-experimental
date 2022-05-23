@@ -1,7 +1,7 @@
 'use strict';
 /*
 Uses:
-- utils.normalize_bcp47
+- utils.normalizeBCP47
   -> Purely functional
 
 One-time setup:
@@ -105,26 +105,26 @@ Config.prototype._detectLanguages = function() {
   var languages = [];
   var found_navlang = false;
   if (self.config["lang"]) {
-    languages.push(utils.normalize_bcp47(self.config["lang"]));
+    languages.push(utils.normalizeBCP47(self.config["lang"]));
   }
   if (navigator.languages) {
     for (var i = 0; i < navigator.languages.length; i++) {
       if (navigator.languages[i]) {
         found_navlang = true;
-        languages.push(utils.normalize_bcp47(navigator.languages[i]));
+        languages.push(utils.normalizeBCP47(navigator.languages[i]));
       }
     }
   }
   if (!found_navlang && navigator.language) {
     found_navlang = true;
-    languages.push(utils.normalize_bcp47(navigator.language));
+    languages.push(utils.normalizeBCP47(navigator.language));
   }
   if (!found_navlang && navigator.userLanguage) {
     found_navlang = true;
-    languages.push(utils.normalize_bcp47(navigator.userLanguage));
+    languages.push(utils.normalizeBCP47(navigator.userLanguage));
   }
   if (self.config["default-lang"]) {
-    languages.push(utils.normalize_bcp47(self.config["default-lang"]));
+    languages.push(utils.normalizeBCP47(self.config["default-lang"]));
   }
   languages.push("en");
 

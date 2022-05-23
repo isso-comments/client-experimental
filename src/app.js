@@ -17,14 +17,14 @@ var $ = require('lib/dom');
 var api = require('api');
 var config = require('config');
 var counter = require('counter');
+var extensions = require('extensions');
 var i18n = require('i18n');
 var svg = require('svg');
 var template = require('template');
 var utils = require('utils');
 
 // Not sure tracking state of these belongs in app.js?
-var Q = require('lib/promise');
-var doc = require('lib/document');
+var events = require('events');
 var offset = require('offset');
 
 // Helper for rendering comment area below postbox
@@ -32,11 +32,13 @@ var commentHelper = require('comment');
 // Helper for rendering Postboxes
 var postboxHelper = require('postbox');
 
-var extensions = require('extensions');
+var AGO_TIMEOUT = 60*1000; // 60 seconds
 
 // Dependent on offset module with global state
 var updateTimeOffset = function(date) {
   // is `offset` instance available when run through listener?
+  // -> apparently yes, but still, test out with different TZs set on client
+  //    and server, respectively
   offset.update(new Date(date));
 };
 
@@ -47,10 +49,10 @@ var App = function() {
   self.registerExtensions();
 
   self.api = new api.API(
-    doc.getLocation(),
-    doc.getEndpoint(),
+    utils.getLocation(),
+    utils.getEndpoint(),
     self.ext,
-    { 'updateCookie': doc.updateCookie, 'updateTimeOffset': updateTimeOffset }
+    { 'updateCookie': utils.updateCookie, 'updateTimeOffset': updateTimeOffset }
   );
 
   self._conf = new config.Config();
@@ -80,7 +82,10 @@ var App = function() {
 
   // Signals other components that config has been fetched from server
   // and that init is done
-  self.initDone = Q.waitFor();
+  // Do we need `new` here? I think calling the func always returns a new obj, no?
+  self.initDone = events.waitFor();
+
+  //self.initDone = events.loop(60);
 };
 
 App.prototype.registerExtensions = function() {
@@ -169,7 +174,7 @@ App.prototype.fetchComments = function() {
   self.issoRoot = $('#isso-root');
   self.issoRoot.textContent = '';
 
-  var tid = self.issoThread.getAttribute("data-isso-id") || doc.getLocation();
+  var tid = self.issoThread.getAttribute("data-isso-id") || utils.getLocation();
 
   self.api.fetch(tid, self.config["max-comments-top"],
                  self.config["max-comments-nested"]).then(

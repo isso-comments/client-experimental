@@ -4,13 +4,12 @@ var config = require('config');
 var counter = require('counter');
 var domready = require('lib/domready');
 var i18n = require('i18n');
-
-var doc = require('lib/document');
+var utils = require('utils');
 
 var count = function() {
   this.api = new api.API(
-    doc.getLocation(),
-    doc.getEndpoint(),
+    utils.getLocation(),
+    utils.getEndpoint(),
     null,
     { 'updateCookie': null, 'updateTimeOffset': null }
   );

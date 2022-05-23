@@ -124,7 +124,7 @@ Comment.prototype.insertComment = function(comment, scrollIntoView) {
   self.checkIneditableLoop(comment, "a.isso-edit");
   self.checkIneditableLoop(comment, "a.isso-delete");
   // Allow replying to self if a) reply-to-self enabled or b) cookie expired
-  if (! self.config["reply-to-self"] && utils.cookie("isso-" + comment.id)) {
+  if (! self.config["reply-to-self"] && utils.getCookie("isso-" + comment.id)) {
     var reply = $("a.isso-reply", self.footer).detach();
     self.showDirectReplyDelayed(reply, comment);
   }
@@ -260,7 +260,7 @@ Comment.prototype.toggleDelete = function(toggler, comment) {
 // Remove edit and delete buttons when cookie is gone
 Comment.prototype.checkIneditable = function (comment, button) {
   var self = this; // Preserve Comment object instance context
-  if (! utils.cookie("isso-" + comment.id)) {
+  if (! utils.getCookie("isso-" + comment.id)) {
     if ($(button, self.footer) !== null) {
       $(button, self.footer).remove();
       return true;
@@ -283,7 +283,7 @@ Comment.prototype.checkIneditableLoop = function(comment, button) {
 // Show direct reply to own comment when cookie is max aged
 Comment.prototype.showDirectReplyDelayed = function(reply, comment) {
   var self = this; // Preserve Comment object instance context
-  if (utils.cookie("isso-" + comment.id)) {
+  if (utils.getCookie("isso-" + comment.id)) {
     setTimeout(
       function() { self.showDirectReplyDelayed(reply, comment); },
       COOKIE_REFRESH_TIMEOUT

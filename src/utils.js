@@ -16,12 +16,6 @@ Functions:
 - text
 */
 
-// DOM dependent
-// return `cookie` string if set
-var cookie = function(cookie) {
-  return (document.cookie.match('(^|; )' + cookie + '=([^;]*)') || 0)[2];
-};
-
 var pad = function(n, width, z) {
   z = z || '0';
   n = n + '';
@@ -73,7 +67,7 @@ var detext = function(text) {
 //   "en-CA-x-ca" or "sgn-BE-FR") and four-letter subtags are
 //   titlecase (as in the tag "az-Latn-x-latn").
 // We also map underscores to dashes.
-var normalize_bcp47 = function(tag) {
+var normalizeBCP47 = function(tag) {
   var subtags = tag.toLowerCase().split(/[_-]/);
   var afterSingleton = false;
   for (var i = 0; i < subtags.length; i++) {
@@ -116,11 +110,66 @@ var localStorageImpl = function() {
   }
 };
 
+// DOM dependent
+var getEndpoint = function() {
+  var js = document.getElementsByTagName("script");
+  var url;
+
+  // prefer `data-isso="//host/api/endpoint"` if provided
+  for (var i = 0; i < js.length; i++) {
+    if (js[i].hasAttribute("data-isso")) {
+      url = js[i].getAttribute("data-isso");
+      break;
+    }
+  }
+
+  // if no async-script is embedded, use the last script tag of `js`
+  if (!url) {
+    for (i = 0; i < js.length; i++) {
+      if (js[i].getAttribute("async") || js[i].getAttribute("defer")) {
+        throw "Isso's automatic configuration detection failed, please " +
+              "refer to https://github.com/posativ/isso#client-configuration " +
+              "and add a custom `data-isso` attribute.";
+      }
+    }
+
+    var script = js[js.length - 1];
+    url = script.src.substring(0, script.src.length - "/js/embed.min.js".length);
+  }
+
+  //  strip trailing slash
+  if (url[url.length - 1] === "/") {
+    url = url.substring(0, url.length - 1);
+  }
+
+  return url;
+};
+
+// DOM dependent
+var getLocation = function() {
+  return window.location.pathname;
+};
+
+// DOM dependent
+// return `cookie` string if set (e.g. `isso-1=foo`)
+var getCookie = function(cookie) {
+  return (document.cookie.match('(^|; )' + cookie + '=([^;]*)') || 0)[2];
+};
+
+// DOM dependent
+// Set whole cookie based on X-Set-Cookie response header
+var updateCookie = function(cookie) {
+  document.cookie = cookie;
+};
+
 module.exports = {
-  cookie: cookie,
   detext: detext,
+  getCookie: getCookie,
+  getEndpoint: getEndpoint,
+  getLocation: getLocation,
   localStorageImpl: localStorageImpl,
-  normalize_bcp47: normalize_bcp47,
+  normalizeBCP47: normalizeBCP47,
   pad: pad,
   text: text,
+  updateCookie: updateCookie,
 };
