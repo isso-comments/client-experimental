@@ -45,6 +45,7 @@ var catalogue = {
   ru: require('i18n/ru'),
   sk: require('i18n/sk'),
   sv: require('i18n/sv'),
+  tr: require('i18n/tr'),
   uk: require('i18n/uk'),
   vi: require('i18n/vi'),
   'zh-CN': require('i18n/zh-CN'),
@@ -119,19 +120,6 @@ var pluralforms = function(lang) {
           return typeof msgs[2] !== "undefined" ? msgs[2] : msgs[1];
         }
       };
-    //case "uk":
-    //  // https://translate.wordpress.com/projects/wpcom/uk/default
-    //  // Plural-Forms: nplurals=3; plural=
-    //  // n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2
-    //  return function(msgs, n) {
-    //    if (n % 10 == 1 && n % 100 != 11) {
-    //      return msgs[0];
-    //    } else if (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) {
-    //      return msgs[1];
-    //    } else {
-    //      return msgs[2];
-    //    }
-    //  };
     default:
       return null;
   }
