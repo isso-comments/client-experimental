@@ -9,17 +9,30 @@ const offset = require('offset');
 
 const fakeThread = require('fixtures/comment-thread');
 
+const mockExtract = jest.fn(() => []);
+
 var issoApp = null;
 
 beforeEach(() => {
   jest.clearAllMocks();
+  jest.mock('counter', () => {
+    const originalModule = jest.requireActual('counter');
+    return {
+      ...originalModule,
+      extractThreads: mockExtract,
+      //Counter: {
+      //  count: jest.fn((objs, cb) => cb([4])),
+      //  setCounter: originalModule.setCounter,
+      //},
+    }
+  });
   document.body.innerHTML =
     '<div id=isso-thread></div>' +
     '<script src="http://isso.api/js/embed.min.js"'
           + 'data-isso="/"'
           + 'data-isso-id="1"></script>';
-  issoApp = new app.App();
 
+  issoApp = new app.App();
   // Mock svg icons (Jest doesn't read `require`-ed files correctly)
   issoApp.template.templateVars["svg"] = {
     'arrow-up': '<svg></svg>',
@@ -58,7 +71,18 @@ test('Render whole widget', () => {
   const onReadySpy = jest.spyOn(issoApp.initDone, 'onReady')
   const mergeSpy = jest.spyOn(issoApp, 'mergeConfigs')
 
+  // Mock counter API implementation, return count of 4 comments
+  const fakeCountThen = jest.fn(
+    (onSuccess, onError) => {onSuccess.call(issoApp, [4])}
+  );
+  jest.spyOn(issoApp.api, 'count')
+    .mockImplementationOnce(() => ({then: fakeCountThen}));
+  const counterSpy = jest.spyOn(issoApp.counter, 'count');
+  //  .mockImplementationOnce((threads, cb) => cb([4]));
+
   issoApp.initWidget.call(issoApp);
+
+  expect(counterSpy).toHaveBeenCalledTimes(1);
 
   // initWidget should call initDone.reset() immediately
   expect(resetSpy).toHaveBeenCalledTimes(1);
@@ -73,6 +97,10 @@ test('Render whole widget', () => {
 
   expect(onReadySpy).toHaveBeenCalledTimes(1);
   expect(issoApp.initDone.isReady()).toBeTruthy();
+
+  // Somehow doesn't mock, uses original module...
+  //expect(mockExtract).toHaveBeenCalledTimes(1);
+  //expect(mockExtract).toHaveReturnedWith([]);
 
   // Mock api.fetch.then(onSuccess(rv), onFailure(err))
   // Return immediately instead of invoking any promise setTimeout funcs

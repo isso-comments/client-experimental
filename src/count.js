@@ -21,11 +21,11 @@ var count = function() {
   this.i18n.config = this.config;
   this.i18n.initTranslations();
 
-  var counter = new counter.Counter();
-  counter.api = api;
-  counter.i18n = i18n;
+  var cnt = new counter.Counter();
+  cnt.api = api;
+  cnt.i18n = i18n;
 
-  counter.setCommentCounts();
+  cnt.count(counter.extractThreads(), null);
 };
 
 domready(function() {

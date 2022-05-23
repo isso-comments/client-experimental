@@ -26,6 +26,7 @@ var waitFor = function() {
       isReady = true;
       for (var listener in listeners) {
         // Ignore dead listeners
+        //if (!(listeners.hasOwnProperty(listener) && !listeners[listener])) {
         if (!listeners[listener]) {
           continue;
         }
@@ -52,6 +53,7 @@ var loop = function(interval) {
     next = [];
     for (var listener in current) {
       // Ignore dead listeners
+      //if (!(current.hasOwnProperty(listener) && current[listener])) {
       if (!current[listener]) {
         continue;
       }

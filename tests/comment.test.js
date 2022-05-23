@@ -54,9 +54,16 @@ test('Rendered comment should match snapshot', () => {
   let fakeDate = new Date('2022-05-05T18:06:49Z'); // comment date + 1h
   offset.update(fakeDate);
 
-  let _comment = new commentHelper.Comment(null, null, conf,
+  let comment_ = new commentHelper.Comment(null, null, conf,
     i18n_, template_);
-  _comment.insertComment(fakeComment, false);
+
+  comment_.app = {
+    loop: {
+      register: jest.fn(() => false),
+    },
+  };
+
+  comment_.insertComment(fakeComment, false);
 
   expect($('.isso-comment').outerHTML).toMatchSnapshot();
 });

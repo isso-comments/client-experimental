@@ -103,7 +103,7 @@ Comment.prototype.insertComment = function(comment, scrollIntoView) {
     }
   );
 
-  if(comment.hasOwnProperty('replies')) {
+  if(comment.hasOwnProperty('replies') && comment.replies.length !== 0) {
     self.app.insertReplies(comment);
   }
 

@@ -95,5 +95,5 @@ test.skip('missing DOM element', () => {
           + 'data-isso="/"'
           + 'data-isso-id="1"></script>';
   let issoRoot = $('#isso-root');
-  expect(issoRoot).toBe(null
+  expect(issoRoot).toBe(null);
 });

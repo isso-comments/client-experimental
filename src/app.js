@@ -86,8 +86,11 @@ var App = function() {
   // Do we need `new` here? I think calling the func always returns a new obj, no?
   self.initDone = event.waitFor();
 
+  // Set up functions that need to be run in recurring intervals
   self.fastLoop = event.loop(COOKIE_REFRESH_TIMEOUT); // 15 seconds
   self.loop = event.loop(AGO_TIMEOUT); // 60 seconds
+  self.fastLoop.start();
+  self.loop.start();
 };
 
 App.prototype.registerExtensions = function() {
@@ -105,18 +108,6 @@ App.prototype.registerExtensions = function() {
 App.prototype.initWidget = function() {
   var self = this; // Preserve App object instance context
 
-  console.log("starting loops");
-  self.loop.start();
-  self.fastLoop.start();
-
-  /*
-  console.log("registering for loop");
-  var loopy = function(i) {
-    console.log("loop!", i);
-    self.loop.register(function(){loopy(i)});
-  }
-  */
-
   self.initDone.reset();
 
   self.api.config().then(
@@ -131,7 +122,31 @@ App.prototype.initWidget = function() {
       self.heading = $.new("h4.isso-thread-heading");
       self.issoThread.append(self.heading);
       self.insertStyles();
-      self.counter.setCommentCounts();
+
+      // this is massively overcomplicated, just have
+      // the server return dict ´{'url1': count, 'url2': count}` instead of array
+      var threads = counter.extractThreads();
+
+      var tid = utils.threadId();
+      var pos = null;
+      if (tid in threads) {
+        pos = Object.keys(threads).indexOf(tid);
+      } else {
+        threads[tid] = {textContent: null};
+        pos = Object.keys(threads).length - 1
+      }
+
+      self.counter.count(
+        threads,
+        function(counts) {
+          if (counts[pos] === 0) {
+            self.heading.textContent = self.i18n.translate("no-comments");
+            return;
+          }
+          self.heading.textContent = self.i18n.pluralize("num-comments", counts[pos]);
+        }.bind(self)
+      );
+
       self.insertFeed();
 
       self.issoThread.append(self.createPostbox(null));
@@ -210,7 +225,7 @@ App.prototype.insertReplies = function(comment) {
   var lastCreated = 0;
   var count = comment.total_replies;
   comment.replies.forEach(function(replyObject) {
-    self.insertComment(replyObject, true);
+    self.insertComment(replyObject, false);
     if(replyObject.created > lastCreated) {
       lastCreated = replyObject.created;
     }
@@ -247,13 +262,13 @@ App.prototype.fetchComments = function() {
       var count = self.insertReplies(rv);
 
       if (count === 0) {
-        self.heading.textContent = self.i18n.translate("no-comments");
+        //self.heading.textContent = self.i18n.translate("no-comments");
         return;
       }
 
       // TODO this count should be handled differently
       // We already hit the /count endpoint setCommentCounts(), so re-use it
-      self.heading.textContent = self.i18n.pluralize("num-comments", count);
+      //self.heading.textContent = self.i18n.pluralize("num-comments", count);
 
       self.scrollToHash();
     },

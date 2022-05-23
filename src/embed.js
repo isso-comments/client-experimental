@@ -1,6 +1,7 @@
 'use strict';
 
 var app = require('app');
+var counter = require('counter');
 var domready = require('lib/domready');
 
 var issoApp = null;
@@ -19,7 +20,7 @@ function fetchComments() {
 // count() should set/update _all_ comment counters, including the one above the Postbox
 function count() {
   // Already part of initWidget() and thus init()
-  issoApp.counter.setCommentCounts();
+  issoApp.counter.count(counter.extractThreads(), null);
 };
 
 if (!window.Isso) { window.Isso = {} }

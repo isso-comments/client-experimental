@@ -10,7 +10,7 @@ Uses:
 var $ = require('lib/dom');
 
 // DOM dependent
-var _extractThreads = function() {
+var extractThreads = function() {
   var objs = {};
   $.each("a", function(el) {
     if (! el.href.match || ! el.href.match(/#isso-thread$/)) {
@@ -45,18 +45,21 @@ Counter.prototype.setCounter = function(el, num) {
 
 // TODO: Maybe split this func up further,
 // once API returns {url: count} dict instead of array
-Counter.prototype.setCommentCounts = function() {
+Counter.prototype.count = function(objs, cb) {
   var self = this; // Preserve Object context
 
-  var objs = _extractThreads();
   if (!objs) {
     return;
   }
-
   var urls = Object.keys(objs);
 
   self.api.count(urls).then(function(rv) {
+    if (cb) {
+      cb(rv);
+    }
+    //console.log("objs:", objs);
     for (var key in objs) {
+      //console.log("key with objs:", objs, key);
       if (objs.hasOwnProperty(key)) {
         var index = urls.indexOf(key);
         for (var i = 0; i < objs[key].length; i++) {
@@ -72,4 +75,5 @@ Counter.prototype.setCommentCounts = function() {
 
 module.exports = {
   Counter: Counter,
+  extractThreads: extractThreads,
 };
