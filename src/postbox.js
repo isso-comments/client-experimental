@@ -50,7 +50,7 @@ var Postbox = function(parent, api, app, config, localStorage, template) {
   self.checkEmailRequired();
   self.checkAuthorRequired();
   self.offerNotifications();
-  $("[name='email']", self.element).on("input", self.offerNotifications);
+  $("[name='email']", self.element).on("input", self.offerNotifications.bind(self));
   $("[name='preview']", self.element).on("click", self.preview.bind(self));
   $("[name='edit']", self.element).on("click", self.edit.bind(self));
   $(".isso-preview", self.element).on("click", self.edit.bind(self));

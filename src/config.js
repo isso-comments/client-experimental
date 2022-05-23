@@ -5,8 +5,8 @@ Uses:
   -> Purely functional
 
 One-time setup:
-- _readFromScriptTag
-- _detectLanguages
+- readFromScriptTag
+- detectLanguages
 - init
 
 TODO: Fetch config from server
@@ -52,14 +52,11 @@ Object.freeze(defaultConfig);
 
 var Config = function() {
   this.config = {};
-  for (var key in defaultConfig) {
-      this.config[key] = defaultConfig[key];
-  }
 };
 
 // DOM dependent
 // Dependent on data-isso-* attributes
-Config.prototype._readFromScriptTag = function() {
+Config.prototype.readFromScriptTag = function() {
   var self = this; // Preserve Object context
 
   var js = document.getElementsByTagName("script");
@@ -91,7 +88,7 @@ Config.prototype._readFromScriptTag = function() {
 };
 
 // DOM dependent (navigator.lang*)
-Config.prototype._detectLanguages = function() {
+Config.prototype.detectLanguages = function() {
   var self = this; // Preserve Object context
 
   // create an array of normalized language codes from:
@@ -135,8 +132,11 @@ Config.prototype._detectLanguages = function() {
 };
 
 Config.prototype.init = function() {
-  this._readFromScriptTag();
-  this._detectLanguages();
+  for (var key in defaultConfig) {
+      this.config[key] = defaultConfig[key];
+  }
+  this.readFromScriptTag();
+  this.detectLanguages();
 };
 
 module.exports = {

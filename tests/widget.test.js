@@ -38,6 +38,13 @@ beforeEach(() => {
     'arrow-up': '<svg></svg>',
     'arrow-down': '<svg></svg>'
   };
+
+  // Fake a server response with date header
+  // Normally, this would be used to compute offset between server and client
+  // (i.e. translating server time to client time, which may be in a different
+  // timezone) -> dunno why server doesn't just reply with UTC? Or does it already?
+  const fakeDate = new Date('2022-05-05T11:00:00.000Z'); // comment date + 1h
+  offset.update(fakeDate);
 });
 
 test('Render whole widget', () => {
@@ -52,13 +59,6 @@ test('Render whole widget', () => {
     "hash": "4505c1eeda98",
     "parent": null,
   }
-
-  // Fake a server response with date header
-  // Normally, this would be used to compute offset between server and client
-  // (i.e. translating server time to client time, which may be in a different
-  // timezone) -> dunno why server doesn't just reply with UTC? Or does it already?
-  const fakeDate = new Date('2022-05-05T11:00:00.000Z'); // comment date + 1h
-  offset.update(fakeDate);
 
   // Mock api.config.then(onSuccess(rv), onFailure(err))
   // Return immediately instead of invoking any promise setTimeout funcs
@@ -119,4 +119,3 @@ test('Render whole widget', () => {
 
   expect(issoApp.issoThread.innerHTML).toMatchSnapshot();
 });
-
