@@ -36,6 +36,8 @@ const mockFetch = jest.fn(() => ({then: fakeFetchThen.bind(this)}));
 
 beforeEach(() => {
   jest.restoreAllMocks();
+  // Clear script tag, reset body and (re)-insert relevant elements
+  document.getElementsByTagName('head')[0].innerHTML = "";
   document.body.innerHTML =
     '<div id=isso-thread></div>' +
     '<script src="http://isso.api/js/embed.min.js"'
@@ -202,47 +204,56 @@ test('Gravatar enabled', () => {
 test('Avatars disabled', () => {
   scriptTag.setAttribute('data-isso-avatar', 'false');
   run();
-  expect($('.isso-avatar svg')).toBe(null);
+  expect($('.isso-avatar')).toBe(null);
 });
 
-// TODO
+// Meh, this should really be tested in a specialized test for `lib/identicons.js`
 test.skip('Avatar background', () => {
-  scriptTag.setAttribute('data-isso-css', 'false');
+  scriptTag.setAttribute('data-isso-avatar-bg', 'false');
   run();
-  expect(document.getElementsByTagName('link')).toEqual([]);
 });
-
-// TODO
 test.skip('Avatar foreground', () => {
-  scriptTag.setAttribute('data-isso-css', 'false');
+  scriptTag.setAttribute('data-isso-avatar-fg', 'false');
   run();
-  expect(document.getElementsByTagName('link')).toEqual([]);
 });
 
-// TODO
-test.skip('Voting disabled', () => {
-  scriptTag.setAttribute('data-isso-css', 'false');
+test('Voting disabled', () => {
+  scriptTag.setAttribute('data-isso-vote', 'false');
   run();
-  expect(document.getElementsByTagName('link')).toEqual([]);
+  expect($('.isso-upvote')).toBe(null);
 });
 
-// TODO
-test.skip('Vote levels = 2', () => {
-  scriptTag.setAttribute('data-isso-css', 'false');
+test('Vote levels = [-5, 1, 3, 5]', () => {
+  // Will result in 5 vote levels (class names start at 0)
+  // x<-5, -5<=x<1, 1<=x<3, x=3, x>=4
+  scriptTag.setAttribute('data-isso-vote-levels', [-5, 1, 3, 5]);
   run();
-  expect(document.getElementsByTagName('link')).toEqual([]);
+  // Comments votes:
+  // - comment-1: -2 + 7 = 5
+  //    - comment-3: 0 + 1 = 1
+  //    - comment-4: -10 + 3 = -7
+  // - comment-2: 0 + 4 = 4
+  let one = $('#isso-1');
+  let three = $('#isso-3');
+  let four = $('#isso-4');
+  let two = $('#isso-2');
+  expect(one.classList).toContain('isso-vote-level-4');
+  expect(three.classList).toContain('isso-vote-level-2');
+  expect(four.classList).toContain('isso-vote-level-0');
+  expect(two.classList).toContain('isso-vote-level-3');
+  expect($('.isso-vote-level-1')).toBe(null);
 });
 
-// TODO
-test.skip('Atom feed enabled', () => {
-  scriptTag.setAttribute('data-isso-css', 'false');
+test('Atom feed enabled', () => {
+  scriptTag.setAttribute('data-isso-feed', true);
   run();
-  expect(document.getElementsByTagName('link')).toEqual([]);
+  expect($('.isso-feedlink a').textContent).toBe("Atom feed");
+  expect($('.isso-feedlink a').obj.href)
+    .toEqual('http://localhost/feed?uri=%2F');
 });
 
-// TODO
 test.skip('Highlighted page author comments', () => {
-  scriptTag.setAttribute('data-isso-css', 'false');
+  scriptTag.setAttribute('data-isso-page-author-hashes', []);
   run();
   expect(document.getElementsByTagName('link')).toEqual([]);
 });
