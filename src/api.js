@@ -251,6 +251,8 @@ API.prototype.dislike = function(id) {
   return deferred.promise;
 };
 
+// Maybe doesn't need to be part of API module
+// Note: Does not return a promise!
 API.prototype.feed = function(tid) {
   return this.endpoint + "/feed?" + _qs({uri: tid});
 };

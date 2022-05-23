@@ -123,10 +123,10 @@ App.prototype.initWidget = function() {
       self.issoThread.append(self.heading);
       self.insertStyles();
 
-      // this is massively overcomplicated, just have
+      // TODO: This is massively overcomplicated, just have
       // the server return dict ´{'url1': count, 'url2': count}` instead of array
+      // (which currently requires us to keep the calling mapping to resolve back)
       var threads = counter.extractThreads();
-
       var tid = utils.threadId();
       var pos = null;
       if (tid in threads) {
