@@ -252,8 +252,12 @@ test('Atom feed enabled', () => {
     .toEqual('http://localhost/feed?uri=%2F');
 });
 
-test.skip('Highlighted page author comments', () => {
-  scriptTag.setAttribute('data-isso-page-author-hashes', []);
+test('Highlighted page author comments', () => {
+  // Let comment with id=4 be authored by site admin
+  scriptTag.setAttribute('data-isso-page-author-hashes', ['0c7d4cd57a0f']);
+  // Display strings in Ukrainian, for good measure
+  scriptTag.setAttribute('data-isso-lang', 'uk');
   run();
-  expect(document.getElementsByTagName('link')).toEqual([]);
+  expect($('#isso-4').classList).toContain('isso-is-page-author');
+  expect($('.isso-page-author-suffix').textContent).toBe("Автор");
 });
