@@ -1,5 +1,9 @@
 'use strict';
 
+// Immediately Invoked Function Expression (IIFE)
+// To prevent collision with other scripts on the page
+(function () {
+
 var app = require('app');
 var counter = require('counter');
 var domready = require('lib/domready');
@@ -44,3 +48,5 @@ domready(function() {
   init();
   fetchComments();
 });
+
+})();
