@@ -80,7 +80,7 @@ App.prototype.initWidget = function() {
 }
 
 // later, in other file:
-var app = new app.App();
+var app = new app.App('conf');
 app.initWidget()
 ```
 
