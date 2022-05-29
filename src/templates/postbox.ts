@@ -1,10 +1,10 @@
-var html = function (globals) {
-  var i18n = globals.i18n;
-  var conf = globals.conf;
-  var author = globals.author;
-  var email = globals.email;
-  var website = globals.website;
-  var notify = conf["reply-notifications-default-enabled"] ? " checked" : '';
+module.exports = (globals) => {
+  const i18n = globals.i18n;
+  const conf = globals.conf;
+  const author = globals.author;
+  const email = globals.email;
+  const website = globals.website;
+  const notify = conf["reply-notifications-default-enabled"] ? " checked" : '';
 
   return "" +
 "<div class='isso-postbox'>"
@@ -51,4 +51,3 @@ var html = function (globals) {
 + "</div>"
 + "</div>"
 };
-module.exports = html;

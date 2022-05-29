@@ -1,14 +1,14 @@
-var html = function (globals) {
-  var i18n = globals.i18n;
-  var comment = globals.comment;
-  var conf = globals.conf;
-  var datetime = globals.datetime;
-  var humanize = globals.humanize;
-  var svg = globals.svg;
+module.exports = (globals) => {
+  const i18n = globals.i18n;
+  const comment = globals.comment;
+  const conf = globals.conf;
+  const datetime = globals.datetime;
+  const humanize = globals.humanize;
+  const svg = globals.svg;
 
-  var author = comment.author ? comment.author : i18n.translate('comment-anonymous');
-  var isPageAuthor = conf["page-author-hashes"].indexOf(comment.hash) > -1;
-  var pageAuthorClass = (isPageAuthor ? " isso-is-page-author" : '');
+  const author = comment.author ? comment.author : i18n.translate('comment-anonymous');
+  const isPageAuthor = conf["page-author-hashes"].indexOf(comment.hash) > -1;
+  const pageAuthorClass = (isPageAuthor ? " isso-is-page-author" : '');
 
   return "" +
 "<div class='isso-comment" + pageAuthorClass + "' id='isso-" + comment.id + "' data-hash='" + comment.hash + "'>"
@@ -58,4 +58,3 @@ var html = function (globals) {
 + "<div class='isso-follow-up'></div>"
 + "</div>" // .isso-comment
 };
-module.exports = html;

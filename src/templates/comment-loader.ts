@@ -1,4 +1,4 @@
-var html = function (globals) {
+module.exports = (globals) => {
   var comment = globals.comment;
   var i18n = globals.i18n;
 
@@ -7,4 +7,3 @@ var html = function (globals) {
 + "<a class='isso-load-hidden' href='#'>" + i18n.pluralize('comment-hidden', comment.hidden_replies) + "</a>"
 + "</div>"
 };
-module.exports = html;
