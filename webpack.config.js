@@ -22,14 +22,23 @@ module.exports = [{
       path.resolve(__dirname, 'src'),
       'node_modules',
     ],
+    extensions: ['.tsx', '.ts', '.js'],
   },
   /* https://webpack.js.org/guides/asset-modules/ */
   module: {
-    rules: [{
-      /* Read raw file contents when `require`-ing .svg files */
-      test: /\.svg/,
-      type: 'asset/source'
-    }, ],
+    rules: [
+      {
+        /* Read raw file contents when `require`-ing .svg files */
+        test: /\.svg/,
+        type: 'asset/source'
+      },
+      {
+        /* Compile TypeScript files */
+        test: /\.tsx?$/,
+        use: 'ts-loader',
+        exclude: /node_modules/,
+      }
+    ],
   },
   /* https://webpack.js.org/concepts/output/ */
   output: {
