@@ -1,4 +1,4 @@
-const config = {
+module.exports = {
   modulePaths: ['<rootDir>/src', '<rootDir>/tests'],
   testEnvironment: 'jsdom',
   moduleNameMapper: {
@@ -9,5 +9,3 @@ const config = {
     '<rootDir>/src/**/*.js',
   ],
 };
-
-module.exports = config;
