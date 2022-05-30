@@ -12,7 +12,7 @@ var $ = require('lib/dom');
 // DOM dependent
 var extractThreads = function() {
   var objs = {};
-  document.links.forEach(function(el) {
+  Array.prototype.forEach.call(document.links, function(el) {
     if (! el.href.match || ! el.href.match(/#isso-thread$/)) {
       return;
     }
