@@ -188,9 +188,12 @@ Comment.prototype.toggleEdit = function(toggler, comment) {
 
     toggler.canceled = false;
     self.api.view(comment.id, 1).then(function(rv) {
-      var textarea = editorify($.new("div.isso-textarea"));
+      var textarea = $.new("textarea.isso-textarea");
+      textarea.setAttribute("rows", 5);
+      textarea.setAttribute("minlength", 3);
+      textarea.setAttribute("maxlength", 65535);
 
-      textarea.innerHTML = utils.detext(rv.text);
+      textarea.value = rv.text;
       textarea.focus();
 
       self.text.classList.remove("isso-text");
@@ -206,13 +209,13 @@ Comment.prototype.toggleEdit = function(toggler, comment) {
   } else {
     var textarea = $(".isso-textarea", self.text);
     if (! toggler.canceled && textarea !== null) {
-      if (utils.text(textarea.innerHTML).length < 3) {
+      if (textarea.value.length < 3) {
         // TODO remove focus instead of validation layer?
         textarea.focus();
         toggler.wait();
         return;
       } else {
-          self.api.modify(comment.id, {"text": utils.text(textarea.innerHTML)})
+          self.api.modify(comment.id, {"text": textarea.value})
             .then(function(rv) {
               self.text.innerHTML = rv.text;
               comment.text = rv.text;

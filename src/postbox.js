@@ -52,8 +52,14 @@ var Postbox = function(parent, api, app, config, localStorage, template) {
   self.offerNotifications();
   $("[name='email']", self.element).on("input", self.offerNotifications.bind(self));
   $("[name='preview']", self.element).on("click", self.preview.bind(self));
-  $("[name='edit']", self.element).on("click", self.edit.bind(self));
-  $(".isso-preview", self.element).on("click", self.edit.bind(self));
+  $("[name='edit']", self.element).on("click", function() {
+    self.edit.bind(self)
+    $(".isso-textarea", self.element).focus();
+  });
+  $(".isso-preview", self.element).on("click", function() {
+    self.edit.bind(self)
+    $(".isso-textarea", self.element).focus();
+  });
   $("[type=submit]", self.element).on("click", self.submit.bind(self));
 
   var email = $("[name='email']", self.element)
@@ -63,9 +69,6 @@ var Postbox = function(parent, api, app, config, localStorage, template) {
   var textarea = $(".isso-textarea", self.element);
   textarea.on("focus", function() {textarea.classList.remove('isso-validation-error')});
 
-  //editorify($(".isso-textarea", self.element));
-  editorify(textarea);
-
   return self.element;
 };
 
@@ -73,8 +76,7 @@ Postbox.prototype.validate = function() {
   var self = this; // Preserve Object context
   var reasons = [];
 
-  if (utils.text($(".isso-textarea", self.element).innerHTML).length < 3 ||
-    $(".isso-textarea", self.element).classList.contains("isso-placeholder"))
+  if ($(".isso-textarea", self.element).value.length < 3)
   {
     //$(".isso-textarea", self.element).focus();
     reasons.push(ValidationError.TEXT_TOO_SHORT);
@@ -122,7 +124,7 @@ Postbox.prototype.checkAuthorRequired = function() {
 
 Postbox.prototype.preview = function() {
   var self = this; // Preserve Object context
-  self.api.preview(utils.text($(".isso-textarea", self.element).innerHTML)).then(
+  self.api.preview($(".isso-textarea", self.element).value).then(
     function(html) {
       $(".isso-preview .isso-text", self.element).innerHTML = html;
       self.element.classList.add('isso-preview-mode');
@@ -175,15 +177,14 @@ Postbox.prototype.submit = function() {
 
   var tid = utils.threadId();
   var title = $("#isso-thread").getAttribute("data-title") || null;
-  var text = utils.text($(".isso-textarea", self.element).innerHTML);
+  var text = $(".isso-textarea", self.element).value;
 
   self.api.create(tid, {
     author: author, email: email, website: website,
     text: text, parent: self.parent || null, title: title,
     notification: $("[name=notification]", self.element).checked() ? 1 : 0,
   }).then(function(comment) {
-    $(".isso-textarea", self.element).innerHTML = "";
-    $(".isso-textarea", self.element).blur();
+    $(".isso-textarea", self.element).value = "";
 
     // This backref feels yuck
     self.app.insertComment(comment, true);

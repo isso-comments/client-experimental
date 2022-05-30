@@ -9,51 +9,15 @@ One-time setup:
 
 Functions:
 - cookie
-- detext
 - localStorageImpl
 - normalize_bcp47
 - pad
-- text
 */
 
 var pad = function(n, width, z) {
   z = z || '0';
   n = n + '';
   return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
-};
-
-var HTMLEntity = {
-  "&": "&amp;",
-  "<": "&lt;",
-  ">": "&gt;",
-  '"': '&quot;',
-  "'": '&#39;',
-  "/": '&#x2F;'
-};
-
-var escape = function(html) {
-  return String(html).replace(/[&<>"'\/]/g, function(s) {
-    return HTMLEntity[s];
-  });
-};
-
-// DOM dependent
-// should be removed since it just causes headaches with indented code
-var text = function(html) {
-  var _ = document.createElement("div");
-  _.innerHTML = html.replace(/<div><br><\/div>/gi, '<br>')
-    .replace(/<div>/gi, '<br>')
-    .replace(/<br>/gi, '\n')
-    .replace(/&nbsp;/gi, ' ');
-  return _.textContent.trim();
-};
-
-// DOM dependent
-// should be removed since it just causes headaches with indented code
-var detext = function(text) {
-  text = escape(text);
-  return text.replace(/\n\n/gi, '<br><div><br></div>')
-    .replace(/\n/gi, '<br>');
 };
 
 // Normalize a BCP47 language tag.
@@ -174,13 +138,11 @@ var cookie = (function() {
 })();
 
 module.exports = {
-  detext: detext,
   cookie: cookie,
   endpoint: endpoint,
   location: location,
   localStorageImpl: localStorageImpl,
   normalizeBCP47: normalizeBCP47,
   pad: pad,
-  text: text,
   threadId: threadId,
 };
