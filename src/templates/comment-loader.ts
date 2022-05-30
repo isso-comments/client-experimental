@@ -1,6 +1,6 @@
-module.exports = (globals) => {
-  var comment = globals.comment;
-  var i18n = globals.i18n;
+module.exports = (params) => {
+  const comment = params.comment;
+  const i18n = params.i18n;
 
   return "" +
 "<div class='isso-comment-loader' id='isso-loader-" + comment.name + "'>"

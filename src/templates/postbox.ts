@@ -1,9 +1,9 @@
-module.exports = (globals) => {
-  const i18n = globals.i18n;
-  const conf = globals.conf;
-  const author = globals.author;
-  const email = globals.email;
-  const website = globals.website;
+module.exports = (params) => {
+  const i18n = params.i18n;
+  const conf = params.conf;
+  const author = params.author;
+  const email = params.email;
+  const website = params.website;
   const notify = conf["reply-notifications-default-enabled"] ? " checked" : '';
 
   return "" +

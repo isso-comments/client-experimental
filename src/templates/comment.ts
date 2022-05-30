@@ -1,10 +1,10 @@
-module.exports = (globals) => {
-  const i18n = globals.i18n;
-  const comment = globals.comment;
-  const conf = globals.conf;
-  const datetime = globals.datetime;
-  const humanize = globals.humanize;
-  const svg = globals.svg;
+module.exports = (params) => {
+  const i18n = params.i18n;
+  const comment = params.comment;
+  const conf = params.conf;
+  const datetime = params.datetime;
+  const humanize = params.humanize;
+  const svg = params.svg;
 
   const author = comment.author ? comment.author : i18n.translate('comment-anonymous');
   const isPageAuthor = conf["page-author-hashes"].indexOf(comment.hash) > -1;
