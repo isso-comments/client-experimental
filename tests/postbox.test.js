@@ -51,8 +51,8 @@ test('"(optional)" labels in Postox vanish if require-author/-email set', () => 
     window.localStorage, template_);
   issoThread.append(box);
 
-  expect($('#isso-postbox-author').placeholder).toBe('John Doe');
-  expect($('#isso-postbox-email').placeholder).toBe('johndoe@example.com');
+  expect($('#isso-postbox-author').placeholder).toBe('Max Mustermann');
+  expect($('#isso-postbox-email').placeholder).toBe('mustermann@beispiel.de');
   // Instead of 'Name (optional)'
   expect($("[for='isso-postbox-author']").textContent).toBe('Name');
   // Instead of 'E-Mail (optional)'
